@@ -1,0 +1,16 @@
+# Publish only the game, its dependencies, and repository/hosting documentation.
+# Add an exception here when introducing a new runtime asset.
+/*
+!/.gitignore
+!/.nojekyll
+!/index.html
+!/penalty-3d.html
+!/penalty.html
+!/scene-3d.js
+!/README.md
+!/vendor/
+
+/vendor/*
+!/vendor/three.min.js
+!/vendor/three-LICENSE.txt
+!/vendor/manifest.json
