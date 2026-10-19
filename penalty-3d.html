@@ -142,9 +142,9 @@
     .field { grid-column: 1; grid-row: 3; min-height: 0; min-width: 0; }
     #pitch, #world { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
     .side-panel { grid-column: 2; grid-row: 1 / 4; min-height: 0; overflow-y: auto; border-left: 1px solid #425444; background: #18271d; }
-    .bottom { padding: 16px; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 16px; border-bottom: 1px solid #425444; }
+    .bottom { display: grid; grid-template-columns: minmax(0, 1fr); padding: 16px; align-content: start; gap: 16px; border-bottom: 1px solid #425444; }
     .power { max-width: none; }
-    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; gap: 8px; }
     .actions button { min-width: 0; padding: 10px 8px; }
     .keeper-controls { padding: 16px; flex-direction: column; align-items: stretch; gap: 10px; border-top: 0; }
     .keeper-controls p { font-size: 11px; }
@@ -170,20 +170,19 @@
     }
     .touch-help { display: none; }
     #touch-controls { display: grid; gap: 8px; }
-    .touch-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    #touch-controls { grid-template-columns: minmax(0, 1fr) 84px; align-items: center; }
     body.touch-mode { -webkit-text-size-adjust: 100%; }
     body.touch-mode .app { padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
     body.touch-mode button, body.touch-mode select { min-height: 44px; }
     body.touch-mode select { font-size: 16px; }
     body.touch-mode .desktop-help { display: none; }
     body.touch-mode .touch-help { display: flex; }
-    body.touch-mode .spin-panel { position: static; width: 100%; height: 92px; padding: 4px 8px; gap: 8px; align-items: flex-start; box-shadow: none; pointer-events: auto; }
+    body.touch-mode .spin-panel { position: static; width: 100%; height: 72px; padding: 4px 8px; gap: 8px; align-items: flex-start; box-shadow: none; pointer-events: auto; }
     body.touch-mode .spin-panel .spin-hint { display: none; }
     body.touch-mode #spin-readout { font-size: 10px; line-height: 1.3; }
-    body.touch-mode .spin-panel svg { width: 84px; height: 84px; touch-action: none; flex-shrink: 0; cursor: grab; }
+    body.touch-mode .spin-panel svg { width: 64px; height: 64px; touch-action: none; flex-shrink: 0; cursor: grab; }
     body.touch-mode .spin-copy { display: block; }
-    body.touch-mode #touch-shoot, body.touch-mode #touch-hide, body.touch-mode .keypad { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-    body.touch-mode #touch-shoot { background: #d5ff72; color: #1c2a20; border: 1px solid #d5ff72; padding: 8px; }
+    body.touch-mode #pitch, body.touch-mode #touch-hide, body.touch-mode .keypad { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
     body.touch-mode #touch-hide { padding: 8px; }
     body.touch-mode #touch-hide[aria-pressed="true"] { background: #d5ff7228; border-color: #d5ff72; }
     body.touch-mode .keypad [data-move] { min-height: 44px; }
@@ -208,44 +207,84 @@
       body.touch-mode .attempts li { width: 18px; height: 18px; }
       body.touch-mode .turn-strip { padding: 4px 8px; }
       body.touch-mode #turn-info { font-size: 10px; }
-      body.touch-mode .spin-panel svg { width: 64px; height: 64px; }
-      body.touch-mode .spin-panel { height: 72px; }
+      body.touch-mode .spin-copy { display: none; }
       body.touch-mode .spin-hint, body.touch-mode #keeper-help { display: none; }
       body.touch-mode .keypad { gap: 3px; }
       body.touch-mode .keeper-controls p { margin: 2px 0; }
       body.touch-mode .bottom, body.touch-mode .keeper-controls { padding: 6px; gap: 6px; }
       body.touch-mode:not(.touch-defending) .keeper-controls { display: none; }
-      body.touch-mode.touch-defending .power, body.touch-mode.touch-defending .touch-actions { display: none; }
+      body.touch-mode.touch-defending .power, body.touch-mode.touch-defending #touch-hide { display: none; }
       body.touch-mode.touch-defending .actions, body.touch-mode.touch-defending .keeper-controls .eyebrow,
       body.touch-mode.touch-defending #input-mode, body.touch-mode.touch-defending label[for="input-mode"] { display: none; }
+    }
+    body:not(.playing) .app { height: auto; min-height: 100svh; max-width: 740px; padding: 24px 16px; }
+    body .menu header { display: flex; margin-bottom: 24px; }
+    .menu .intro { display: block; }
+    .menu .tag { display: none; }
+    .menu .mode-bar { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 12px; margin: 24px 0; }
+    body .menu #mode { max-width: none; }
+    .menu button, .menu select, .play-bar button { min-height: 44px; }
+    .menu select { width: 100%; font-size: 16px; }
+    .menu #venue { display: block; grid-column: 1 / -1; }
+    .menu-help { color: #acbcac; font-size: 13px; line-height: 1.6; }
+    .menu-actions, .play-bar { display: flex; gap: 10px; align-items: center; }
+    .menu-actions .primary { flex: 1; }
+    .version-link { display: inline-block; color: #d5ff72; padding: 16px 0; font-size: 13px; }
+    .play-bar { flex-shrink: 0; justify-content: space-between; margin-bottom: 6px; }
+    .play-bar button { padding: 8px 12px; }
+    body.playing .instructions { display: none; }
+    body.touch-mode .bottom { padding: 10px; gap: 8px; }
+    body.touch-mode .power > .spin-hint { display: none; }
+    body.touch-mode:not(.touch-defending) .keeper-controls { display: none; }
+    body.touch-mode.touch-defending #touch-controls { grid-template-columns: minmax(0, 1fr); }
+    @media (max-width: 900px) and (orientation: portrait) {
+      body.playing .app { padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)); }
+      .score, .shootout-score { padding: 6px 10px; }
+      .turn-strip { padding: 6px 10px; }
+      #turn-info { font-size: 11px; line-height: 1.35; }
+      body.touch-mode .bottom { min-width: 0; width: 100%; }
+      body.touch-mode.touch-defending .side-panel { display: grid; grid-template-columns: 88px minmax(0, 1fr); align-items: start; }
+      body.touch-mode.touch-defending .power, body.touch-mode.touch-defending .actions,
+      body.touch-mode.touch-defending #touch-hide, body.touch-mode.touch-defending .spin-copy,
+      body.touch-mode.touch-defending #keeper-help, body.touch-mode.touch-defending #keeper-heading { display: none; }
+      body.touch-mode.touch-defending .bottom { padding: 8px 2px; }
+      body.touch-mode.touch-defending .keeper-controls { min-width: 0; padding: 8px; gap: 4px; }
+      body.touch-mode.touch-defending .keeper-controls p { margin: 0; }
     }
     @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
   </style>
 </head>
 <body>
   <main class="app">
+    <section class="menu" id="menu" aria-label="Game menu">
     <header>
-      <div class="brand"><div class="badge" aria-hidden="true">S</div><div><h1>SPOT KICK 3D</h1><div class="edition">Experimental 3D / <a href="penalty.html">Play the original 2D game</a></div></div></div>
+      <div class="brand"><div class="badge" aria-hidden="true">S</div><div><h1>SPOT KICK 3D</h1><div class="edition">The penalty challenge</div></div></div>
       <div class="round"><span class="dot"></span> LIVERPOOL vs REAL MADRID</div>
     </header>
     <section class="intro" aria-labelledby="headline">
       <div><h2>Your moment. Your shot.</h2><p>Pick your corner. Hold your nerve. Beat the keeper.</p></div>
       <span class="tag">3D PROTOTYPE / 01</span>
     </section>
-    <p id="graphics-status" role="alert" hidden></p>
     <div class="mode-bar">
       <label for="mode">Game mode</label>
       <select id="mode"><option value="solo">1 player - Liverpool practice</option><option value="duo">2 players - club shootout</option></select>
-      <span>Changing mode starts a new round.</span>
-      <button class="secondary" id="sound" type="button" aria-pressed="true" title="Turn sound effects off">Sound on</button>
       <label for="lighting">Lighting</label>
       <select id="lighting"><option value="night">Night</option><option value="day">Day</option></select>
       <span id="venue"></span>
       <label for="input-mode">Controls</label>
       <select id="input-mode"><option value="auto">Auto</option><option value="touch">Touch</option><option value="desktop">Mouse / keys</option></select>
-      <span id="audio-status" role="status" aria-live="polite"></span>
     </div>
-    <section class="game" aria-label="Penalty shootout">
+    <p class="menu-help">Choose your settings, then start. Touch and hold the pitch to aim and charge; release to shoot. Quit to menu ends the current match.</p>
+    <div class="menu-actions" id="menu-actions">
+      <button class="primary" id="start" type="button">Start game</button>
+      <button class="secondary" id="sound" type="button" aria-pressed="true" title="Turn sound effects off">Sound on</button>
+    </div>
+    <a class="version-link" href="penalty.html">Switch to the 2D game</a>
+    </section>
+    <p id="graphics-status" role="alert" hidden></p>
+    <div class="play-bar" id="play-bar" hidden><button class="secondary" id="quit" type="button">Quit to menu</button></div>
+    <span id="audio-status" role="status" aria-live="polite"></span>
+    <section class="game" id="game" aria-label="Penalty shootout" hidden>
       <div class="score" id="solo-score">
         <div><div class="eyebrow">Liverpool goals</div><div class="score-number"><b id="goals">0</b> <span>/ 5</span></div></div>
         <div><div class="attempt-label" id="attempt-label">Penalty 1 of 5</div><ol class="attempts" id="attempts" aria-label="Shot history"></ol></div>
@@ -289,11 +328,8 @@
           <div class="spin-hint">Panenka: 22-45% power + an early downward mouse sweep.</div>
         </div>
         <div id="touch-controls" hidden>
-          <div class="touch-actions">
-            <button id="touch-shoot" type="button">Hold to shoot</button>
-            <button class="secondary" id="touch-hide" type="button" aria-pressed="false">Hide aim</button>
-          </div>
           <div id="touch-spin-slot"></div>
+          <button class="secondary" id="touch-hide" type="button" aria-pressed="false">Hide aim</button>
         </div>
         <div class="actions"><button class="secondary" id="restart" type="button">Restart</button><button class="primary" id="next" type="button" disabled>Next penalty</button></div>
       </div>
@@ -315,7 +351,7 @@
       <div class="hint">In flight: mouse/arrows left-right = curl; down = backspin; up = topspin.</div>
     </div>
     <div class="instructions touch-help" id="touch-instructions">
-      <div>Tap or drag the pitch to aim. Hold Shoot, then release. Hide aim toggles the target.</div>
+      <div>Touch and hold the pitch to aim and charge. Drag to adjust aim; release to shoot. Hide aim toggles the target.</div>
       <div>Drag the spin ball after contact; down adds backspin. Keeper: tap a direction during run-up. Landscape recommended.</div>
     </div>
     <p class="sr-only" id="status" role="status" aria-live="polite" aria-atomic="true">Penalty 1 of 5. Aim, hold to charge, then release.</p>
@@ -397,6 +433,9 @@
       throw new Error("HTML5 Canvas 2D is required.");
     }
     const ui = {
+      menu: document.getElementById("menu"), game: document.getElementById("game"),
+      playBar: document.getElementById("play-bar"), menuActions: document.getElementById("menu-actions"),
+      start: document.getElementById("start"), quit: document.getElementById("quit"),
       goals: document.getElementById("goals"), attempts: document.getElementById("attempts"),
       attemptLabel: document.getElementById("attempt-label"), power: document.getElementById("power"),
       powerValue: document.getElementById("power-value"), powerHelp: document.getElementById("power-help"),
@@ -412,11 +451,12 @@
       spinReadout: document.getElementById("spin-readout"), spinBall: document.getElementById("spin-ball"),
       spinDot: document.getElementById("spin-dot"), spinPanel: document.getElementById("spin-panel"),
       inputMode: document.getElementById("input-mode"), touchControls: document.getElementById("touch-controls"),
-      touchShoot: document.getElementById("touch-shoot"), touchHide: document.getElementById("touch-hide"),
+      touchHide: document.getElementById("touch-hide"),
       touchSpinSlot: document.getElementById("touch-spin-slot"), keeperHelp: document.getElementById("keeper-help")
     };
     const standingKeeper = () => ({ x: 0, y: 0.95, lean: 0, reach: 0, crouch: 0 });
     const state = {
+      playing: false,
       mode: "solo", phase: "aiming", turn: 0, histories: [[], []], winner: null, aim: { x: 1.7, y: 1.4 },
       charge: 0, chargeStart: 0, input: null, shot: null, keeper: standingKeeper(),
       lighting: "night", stadium: chooseStadium(), aimHidden: false,
@@ -429,7 +469,6 @@
     let touchMode = false;
     const touchPointers = {
       aim: { element: canvas, id: null },
-      shoot: { element: ui.touchShoot, id: null },
       spin: { element: ui.spinBall, id: null }
     };
     const desktopKeeperHelp = ui.keeperHelp.textContent;
@@ -447,7 +486,7 @@
       ui.spinBall.setAttribute("tabindex", touchMode ? "0" : "-1");
       ui.spinBall.setAttribute("role", touchMode ? "group" : "img");
       ui.spinBall.setAttribute("aria-describedby", touchMode ? "touch-instructions" : "controls");
-      canvas.setAttribute("aria-label", touchMode ? "Penalty pitch. Tap or drag to aim. Use the Hold to shoot button to charge and release." : desktopPitchLabel);
+      canvas.setAttribute("aria-label", touchMode ? "Penalty pitch. Touch and hold to aim and charge. Drag to adjust aim, then release to shoot. Keyboard: arrows aim, hold and release Space to shoot." : desktopPitchLabel);
       ui.keeperHelp.textContent = touchMode ?
         "Tap a direction when the run-up starts. One committed move per penalty. Left and right match the screen." : desktopKeeperHelp;
       ui.spinPanel.querySelector(".spin-hint").textContent = touchMode ? "Drag after contact. Centre = neutral." : "Reverse movement to unwind.";
@@ -467,6 +506,7 @@
       const notice = document.getElementById("graphics-status");
       notice.hidden = false;
       notice.textContent = message;
+      setPlaying(false);
       state.phase = "unavailable";
       document.querySelectorAll("button, select").forEach(control => { control.disabled = true; });
     }
@@ -1021,7 +1061,6 @@
         cell.classList.toggle("selected", Boolean(move && move.key === cell.dataset.move));
         cell.disabled = !touchMode || !duo || !moving || Boolean(move);
       }
-      ui.touchShoot.disabled = state.phase !== "aiming" && state.phase !== "charging";
       ui.touchHide.disabled = !waiting;
       ui.attemptLabel.textContent = state.phase === "gameOver" ? "Round complete" : `Penalty ${attempt} of 5`;
       renderHistory(ui.attempts, state.histories[0], waiting, CONFIG.attempts);
@@ -1031,7 +1070,7 @@
       ui.powerHelp.textContent = state.phase === "runup" ? "Here comes the kicker. Keeper, get ready!" :
         state.phase === "shooting" ? "Shot away. Can the keeper reach it?" :
         state.phase === "result" ? "Take a breath. Your next shot is waiting." :
-        state.phase === "gameOver" ? "Match finished. Play again?" : "Hold to charge. Release to shoot.";
+        state.phase === "gameOver" ? "Match finished. Play again?" : touchMode ? "Hold the pitch to charge. Release to shoot." : "Hold to charge. Release to shoot.";
       if (message) ui.status.textContent = message;
       updatePower();
       updateSpinUI();
@@ -1077,17 +1116,45 @@
     }
 
     function restart() {
+      cancelInput();
       state.histories = [[], []];
       state.turn = 0;
       state.winner = null;
       state.fireCharges = [false, false];
       state.stadium = chooseStadium();
       resetAttempt();
-      canvas.focus({ preventScroll: true });
+      if (state.playing) canvas.focus({ preventScroll: true });
+    }
+
+    function setPlaying(playing) {
+      state.playing = playing;
+      document.body.classList.toggle("playing", playing);
+      ui.menu.hidden = playing;
+      ui.game.hidden = !playing;
+      ui.playBar.hidden = !playing;
+      (playing ? ui.playBar : ui.menuActions).appendChild(ui.sound);
+      lastFrame = null;
+    }
+
+    function startGame() {
+      if (!graphicsReady) return;
+      setPlaying(true);
+      restart();
+      resize();
+      render();
+      window.scrollTo(0, 0);
+    }
+
+    function quitToMenu() {
+      setPlaying(false);
+      restart();
+      ui.status.textContent = "Match ended. Choose your settings and start a new game.";
+      ui.start.focus({ preventScroll: true });
+      window.scrollTo(0, 0);
     }
 
     function beginCharge(input, now) {
-      if (state.phase !== "aiming") return;
+      if (!state.playing || state.phase !== "aiming") return;
       state.phase = "charging";
       state.input = input;
       state.chargeStart = now;
@@ -1121,7 +1188,7 @@
     }
 
     function shoot(input, now) {
-      if (state.phase !== "charging" || state.input !== input) return;
+      if (!state.playing || state.phase !== "charging" || state.input !== input) return;
       state.charge = clamp((now - state.chargeStart) / CONFIG.chargeMs, 0, 1);
       state.shot = {
         ...createFlight(state.aim, state.charge),
@@ -1163,6 +1230,7 @@
     }
 
     function update(now, delta) {
+      if (!state.playing) return;
       if (state.phase === "aiming" || state.phase === "charging") {
         const horizontal = Number(keys.has("ArrowRight")) - Number(keys.has("ArrowLeft"));
         const vertical = Number(keys.has("ArrowUp")) - Number(keys.has("ArrowDown"));
@@ -1249,13 +1317,15 @@
       updateSpinUI();
     });
     canvas.addEventListener("pointerdown", event => {
+      if (!state.playing) return;
       if (touchMode) {
-        if (event.button !== 0 || touchPointers.aim.id !== null) return;
+        if (event.button !== 0 || touchPointers.aim.id !== null || state.phase !== "aiming") return;
         event.preventDefault();
         canvas.focus({ preventScroll: true });
         touchPointers.aim.id = event.pointerId;
         canvas.setPointerCapture(event.pointerId);
-        if (state.phase === "aiming" || state.phase === "charging") pointerAim(event);
+        pointerAim(event);
+        beginCharge("touch", performance.now());
         return;
       }
       if (!event.isPrimary || (event.button !== 0 && !(event.pointerType === "mouse" && event.button === 2))) return;
@@ -1268,7 +1338,10 @@
     canvas.addEventListener("contextmenu", event => event.preventDefault());
     canvas.addEventListener("pointerup", event => {
       if (touchMode) {
-        if (event.pointerId === touchPointers.aim.id) releaseTouchPointer(touchPointers.aim);
+        if (event.pointerId !== touchPointers.aim.id) return;
+        if (state.phase === "charging") pointerAim(event);
+        releaseTouchPointer(touchPointers.aim);
+        shoot("touch", performance.now());
         return;
       }
       if (event.pointerId !== pointerId) return;
@@ -1277,51 +1350,20 @@
     });
     canvas.addEventListener("pointercancel", event => {
       if (!touchMode) cancelInput();
-      else if (event.pointerId === touchPointers.aim.id) releaseTouchPointer(touchPointers.aim);
+      else if (event.pointerId === touchPointers.aim.id) {
+        releaseTouchPointer(touchPointers.aim);
+        if (state.input === "touch") cancelCharge();
+      }
     });
     canvas.addEventListener("lostpointercapture", event => {
       if (touchMode) {
-        if (event.pointerId === touchPointers.aim.id) releaseTouchPointer(touchPointers.aim);
+        if (event.pointerId === touchPointers.aim.id) {
+          releaseTouchPointer(touchPointers.aim);
+          if (state.input === "touch") cancelCharge();
+        }
         return;
       }
       if (pointerId !== null) cancelInput();
-    });
-    ui.touchShoot.addEventListener("pointerdown", event => {
-      if (!touchMode || event.button !== 0 || touchPointers.shoot.id !== null || state.phase !== "aiming") return;
-      event.preventDefault();
-      touchPointers.shoot.id = event.pointerId;
-      ui.touchShoot.setPointerCapture(event.pointerId);
-      beginCharge("touch", performance.now());
-    });
-    ui.touchShoot.addEventListener("pointerup", event => {
-      if (event.pointerId !== touchPointers.shoot.id) return;
-      releaseTouchPointer(touchPointers.shoot);
-      shoot("touch", performance.now());
-    });
-    const cancelTouchShot = event => {
-      if (event.pointerId !== touchPointers.shoot.id) return;
-      releaseTouchPointer(touchPointers.shoot);
-      if (state.input === "touch") cancelCharge();
-    };
-    ui.touchShoot.addEventListener("pointercancel", cancelTouchShot);
-    ui.touchShoot.addEventListener("lostpointercapture", cancelTouchShot);
-    ui.touchShoot.addEventListener("keydown", event => {
-      if (!touchMode || !["Space", "Enter"].includes(event.code)) return;
-      event.preventDefault();
-      if (!event.repeat) beginCharge("touch-keyboard", performance.now());
-    });
-    ui.touchShoot.addEventListener("keyup", event => {
-      if (!touchMode || !["Space", "Enter"].includes(event.code)) return;
-      event.preventDefault();
-      shoot("touch-keyboard", performance.now());
-    });
-    ui.touchShoot.addEventListener("blur", () => {
-      if (state.input === "touch-keyboard" || state.input === "assistive") cancelCharge();
-    });
-    ui.touchShoot.addEventListener("click", event => {
-      if (!touchMode || event.detail !== 0) return;
-      if (state.phase === "aiming") beginCharge("assistive", performance.now());
-      else shoot("assistive", performance.now());
     });
     ui.touchHide.addEventListener("click", () => setAimHidden(!state.aimHidden));
     function touchSpin(event) {
@@ -1401,6 +1443,8 @@
       }
     });
     ui.restart.addEventListener("click", restart);
+    ui.start.addEventListener("click", startGame);
+    ui.quit.addEventListener("click", quitToMenu);
     ui.inputMode.addEventListener("change", applyInputMode);
     ui.mode.addEventListener("change", () => {
       state.mode = ui.mode.value;
@@ -1410,7 +1454,7 @@
       state.lighting = ui.lighting.value;
       syncUI(`${state.lighting === "day" ? "Day" : "Night"} lighting selected. Match score unchanged.`);
       render();
-      canvas.focus({ preventScroll: true });
+      if (state.playing) canvas.focus({ preventScroll: true });
     });
     ui.next.addEventListener("click", () => {
       if (state.phase === "gameOver") restart();
@@ -1816,6 +1860,7 @@
     }
 
     function render() {
+      if (!state.playing || !graphicsReady) return;
       resize();
       ctx.setTransform(canvas.width / CONFIG.width, 0, 0, canvas.height / CONFIG.height, 0, 0);
       ctx.clearRect(0, 0, CONFIG.width, CONFIG.height);
@@ -1824,9 +1869,10 @@
     }
 
     function resize() {
-      if (!graphicsReady) return;
+      if (!graphicsReady || !state.playing) return;
       const ratio = window.devicePixelRatio || 1;
       const bounds = canvas.getBoundingClientRect();
+      if (bounds.width <= 0 || bounds.height <= 0) return;
       const width = Math.round(bounds.width * ratio), height = Math.round(bounds.height * ratio);
       if (canvas.width === width && canvas.height === height && Math.abs(scene3d.camera.aspect - bounds.width / bounds.height) < 0.000001) return;
       pointerPosition = null;
@@ -1850,8 +1896,7 @@
     if (window.visualViewport) window.visualViewport.addEventListener("resize", resize);
     applyInputMode();
     resetAttempt();
-    resize();
-    canvas.focus({ preventScroll: true });
+    ui.start.focus({ preventScroll: true });
     requestAnimationFrame(frame);
   </script>
 </body>

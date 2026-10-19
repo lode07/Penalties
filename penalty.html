@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#101914">
   <title>Spot Kick - Penalty Shootout</title>
   <style>
@@ -115,9 +115,33 @@
     }
     @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
   </style>
+    <style>
+    body:not(.playing) .app { min-height: 100svh; max-width: 740px; padding: 24px 16px; }
+    .menu header { margin-bottom: 24px; }
+    .menu .intro { display: block; }
+    .menu .tag { display: none; }
+    .menu .mode-bar { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 12px; margin: 24px 0; }
+    .menu button, .menu select, .play-bar button { min-height: 44px; }
+    .menu select { width: 100%; font-size: 16px; }
+    .menu #venue { grid-column: 1 / -1; }
+    .menu-help { color: #acbcac; font-size: 13px; line-height: 1.6; }
+    .menu-actions, .play-bar { display: flex; gap: 10px; align-items: center; }
+    .menu-actions .primary { flex: 1; }
+    .version-link { display: inline-block; color: #d5ff72; padding: 16px 0; font-size: 13px; }
+    .play-bar { justify-content: space-between; margin-bottom: 6px; }
+    .play-bar button { padding: 8px 12px; }
+    body.playing .app { padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)); }
+    body.playing .instructions { display: none; }
+    body.playing .score { min-height: 58px; padding: 8px 12px; }
+    body.playing .turn-strip { padding: 6px 12px; }
+    body.playing #turn-info { font-size: 11px; line-height: 1.35; }
+    #pitch { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    .edition a { color: #d5ff72; }
+    </style>
 </head>
 <body>
   <main class="app">
+    <section class="menu" id="menu" aria-label="Game menu">
     <header>
       <div class="brand"><div class="badge" aria-hidden="true">S</div><div><h1>SPOT KICK</h1><div class="edition">The penalty challenge</div></div></div>
       <div class="round"><span class="dot"></span> LIVERPOOL vs REAL MADRID</div>
@@ -129,14 +153,20 @@
     <div class="mode-bar">
       <label for="mode">Game mode</label>
       <select id="mode"><option value="solo">1 player - Liverpool practice</option><option value="duo">2 players - club shootout</option></select>
-      <span>Changing mode starts a new round.</span>
-      <button class="secondary" id="sound" type="button" aria-pressed="true" title="Turn sound effects off">Sound on</button>
       <label for="lighting">Lighting</label>
       <select id="lighting"><option value="night">Night</option><option value="day">Day</option></select>
       <span id="venue"></span>
-      <span id="audio-status" role="status" aria-live="polite"></span>
     </div>
-    <section class="game" aria-label="Penalty shootout">
+    <p class="menu-help">Choose your settings, then start. Touch and hold the pitch to aim and charge; release to shoot. Quit to menu ends the current match.</p>
+    <div class="menu-actions" id="menu-actions">
+      <button class="primary" id="start" type="button">Start game</button>
+      <button class="secondary" id="sound" type="button" aria-pressed="true" title="Turn sound effects off">Sound on</button>
+    </div>
+    <a class="version-link" href="penalty-3d.html">Switch to the 3D game</a>
+    </section>
+    <div class="play-bar" id="play-bar" hidden><button class="secondary" id="quit" type="button">Quit to menu</button></div>
+    <span id="audio-status" role="status" aria-live="polite"></span>
+    <section class="game" id="game" aria-label="Penalty shootout" hidden>
       <div class="score" id="solo-score">
         <div><div class="eyebrow">Liverpool goals</div><div class="score-number"><b id="goals">0</b> <span>/ 5</span></div></div>
         <div><div class="attempt-label" id="attempt-label">Penalty 1 of 5</div><ol class="attempts" id="attempts" aria-label="Shot history"></ol></div>
@@ -270,6 +300,9 @@
       throw new Error("HTML5 Canvas 2D is required.");
     }
     const ui = {
+      menu: document.getElementById("menu"), game: document.getElementById("game"),
+      playBar: document.getElementById("play-bar"), menuActions: document.getElementById("menu-actions"),
+      start: document.getElementById("start"), quit: document.getElementById("quit"),
       goals: document.getElementById("goals"), attempts: document.getElementById("attempts"),
       attemptLabel: document.getElementById("attempt-label"), power: document.getElementById("power"),
       powerValue: document.getElementById("power-value"), powerHelp: document.getElementById("power-help"),
@@ -287,6 +320,7 @@
     };
     const standingKeeper = () => ({ x: 0, y: 0.95, lean: 0, reach: 0, crouch: 0 });
     const state = {
+      playing: false,
       mode: "solo", phase: "aiming", turn: 0, histories: [[], []], winner: null, aim: { x: 1.7, y: 1.4 },
       charge: 0, chargeStart: 0, input: null, shot: null, keeper: standingKeeper(),
       lighting: "night", stadium: chooseStadium(), aimHidden: false
@@ -827,16 +861,42 @@
     }
 
     function restart() {
+      cancelInput();
       state.histories = [[], []];
       state.turn = 0;
       state.winner = null;
       state.stadium = chooseStadium();
       resetAttempt();
-      canvas.focus({ preventScroll: true });
+      if (state.playing) canvas.focus({ preventScroll: true });
+    }
+
+    function setPlaying(playing) {
+      state.playing = playing;
+      document.body.classList.toggle("playing", playing);
+      ui.menu.hidden = playing;
+      ui.game.hidden = !playing;
+      ui.playBar.hidden = !playing;
+      (playing ? ui.playBar : ui.menuActions).appendChild(ui.sound);
+      lastFrame = null;
+    }
+
+    function startGame() {
+      setPlaying(true);
+      restart();
+      resize();
+      window.scrollTo(0, 0);
+    }
+
+    function quitToMenu() {
+      setPlaying(false);
+      restart();
+      ui.status.textContent = "Match ended. Choose your settings and start a new game.";
+      ui.start.focus({ preventScroll: true });
+      window.scrollTo(0, 0);
     }
 
     function beginCharge(input, now) {
-      if (state.phase !== "aiming") return;
+      if (!state.playing || state.phase !== "aiming") return;
       state.phase = "charging";
       state.input = input;
       state.chargeStart = now;
@@ -863,7 +923,7 @@
     }
 
     function shoot(input, now) {
-      if (state.phase !== "charging" || state.input !== input) return;
+      if (!state.playing || state.phase !== "charging" || state.input !== input) return;
       state.charge = clamp((now - state.chargeStart) / CONFIG.chargeMs, 0, 1);
       state.shot = {
         ...createFlight(state.aim, state.charge),
@@ -903,6 +963,7 @@
     }
 
     function update(now, delta) {
+      if (!state.playing) return;
       if (state.phase === "aiming" || state.phase === "charging") {
         const horizontal = Number(keys.has("ArrowRight")) - Number(keys.has("ArrowLeft"));
         const vertical = Number(keys.has("ArrowUp")) - Number(keys.has("ArrowDown"));
@@ -965,6 +1026,7 @@
       updateSpinUI();
     });
     canvas.addEventListener("pointerdown", event => {
+      if (!state.playing) return;
       if (event.pointerType === "mouse") mousePointerId = event.pointerId;
       if (event.button !== 0 || !event.isPrimary || state.phase !== "aiming") return;
       event.preventDefault();
@@ -976,6 +1038,7 @@
     });
     canvas.addEventListener("contextmenu", event => event.preventDefault());
     canvas.addEventListener("mousedown", event => {
+      if (!state.playing) return;
       if (event.button === 2) {
         event.preventDefault();
         canvas.focus({ preventScroll: true });
@@ -1036,6 +1099,8 @@
       }
     });
     ui.restart.addEventListener("click", restart);
+    ui.start.addEventListener("click", startGame);
+    ui.quit.addEventListener("click", quitToMenu);
     ui.mode.addEventListener("change", () => {
       state.mode = ui.mode.value;
       restart();
@@ -1044,7 +1109,7 @@
       state.lighting = ui.lighting.value;
       syncUI(`${state.lighting === "day" ? "Day" : "Night"} lighting selected. Match score unchanged.`);
       render();
-      canvas.focus({ preventScroll: true });
+      if (state.playing) canvas.focus({ preventScroll: true });
     });
     ui.next.addEventListener("click", () => {
       if (state.phase === "gameOver") restart();
@@ -1442,6 +1507,7 @@
     }
 
     function render() {
+      if (!state.playing) return;
       ctx.setTransform(canvas.width / CONFIG.width, 0, 0, canvas.height / CONFIG.height, 0, 0);
       drawStadium();
       drawPitch();
@@ -1453,9 +1519,11 @@
     }
 
     function resize() {
+      if (!state.playing) return;
       pointerPosition = null;
       const ratio = window.devicePixelRatio || 1;
       const bounds = canvas.getBoundingClientRect();
+      if (bounds.width <= 0 || bounds.height <= 0) return;
       canvas.width = Math.round(bounds.width * ratio);
       canvas.height = Math.round(bounds.height * ratio);
       render();
@@ -1472,8 +1540,7 @@
     window.addEventListener("resize", resize);
     const grassTexture = makeGrassTexture();
     resetAttempt();
-    resize();
-    canvas.focus({ preventScroll: true });
+    ui.start.focus({ preventScroll: true });
     requestAnimationFrame(frame);
   </script>
 </body>

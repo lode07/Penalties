@@ -6,7 +6,11 @@ Liverpool vs Real Madrid: a local two-player penalty shootout with alternating k
 
 Open [penalty.html](penalty.html) directly in a desktop browser. No installation, server, internet connection, or external assets are needed.
 
-For the separate **3D prototype**, open [penalty-3d.html](penalty-3d.html). Keep [scene-3d.js](scene-3d.js) and the [vendor folder](vendor) beside it. It also runs offline without a server, but requires WebGL. The original 2D game is unchanged by the 3D experiment, and the 3D page includes a link back to it.
+For the separate **3D prototype**, open [penalty-3d.html](penalty-3d.html). Keep [scene-3d.js](scene-3d.js) and the [vendor folder](vendor) beside it. It also runs offline without a server, but requires WebGL.
+
+Both versions open on a **game menu**. Choose the game mode and day/night lighting, then select **Start game**. The 3D menu also offers automatic or manual control selection. Each menu links to the other version.
+
+During play, setup controls and long instructions are hidden, leaving a compact **Quit to menu / Sound** bar above the game. **Quit to menu ends the match**, clears the score and any 3D fire-shot rewards, cancels held inputs and stops shot sounds. Starting again begins a fresh match with the selected settings; there is no Resume option. The hidden game does not advance or render while the menu is open.
 
 ## Host on GitHub Pages
 
@@ -88,16 +92,15 @@ Official guide: [Configuring a publishing source for GitHub Pages](https://docs.
 
 ### iPhone and iPad controls (3D only)
 
-**Controls: Auto** enables touch mode on iPhone/iPad, including iPads using a desktop-style Mac user agent. Other computers retain mouse/keyboard controls. Select **Touch** or **Mouse / keys** to override detection; changing controls cancels an unfinished charge without restarting the match.
+**Controls: Auto** in the 3D menu enables touch mode on iPhone/iPad, including iPads using a desktop-style Mac user agent. Other computers retain mouse/keyboard controls. Select **Touch** or **Mouse / keys** to override detection.
 
-- **Aim:** tap or drag the pitch. Touching the pitch does not charge a shot.
-- **Shoot:** hold the separate **Hold to shoot** button, then release. Another finger can adjust aim while it is held.
+- **Aim and shoot:** touch and hold the pitch to aim and charge in one gesture, matching the 2D game. Drag that same finger to adjust the target; release to shoot. There is no separate Shoot button.
 - **Spin:** once the ball is airborne, drag the cue-ball control. Right/left applies curl; down/up applies backspin/topspin. Drag to the centre to request neutral spin. Applied spin still ramps gradually, and releasing retains the requested setting.
-- **Keeper:** in two-player mode, tap one of the nine direction buttons from run-up onward. The first choice locks, just like the physical numpad. Shooting, aiming and spin each track their own pointer, so another finger can operate the keeper.
+- **Keeper:** in two-player mode, tap one of the nine direction buttons from run-up onward. The first choice locks, just like the physical numpad. The pitch and spin control track separate pointers, so another finger can operate the keeper.
 - **Hide aim:** tap **Hide aim / Show aim**. It stays toggled during the shot and resets for the next attempt.
-- Interrupted touches, lost pointer capture, leaving the page and changing controls cancel unfinished charges rather than releasing accidental shots. Keyboard controls remain available; the Shoot button also supports holding Space/Enter, or two assistive activations to start/finish charging.
+- Interrupted touches, lost pointer capture, leaving the page and quitting to the menu cancel unfinished charges rather than releasing accidental shots. Keyboard controls remain available: focus the pitch, aim with arrows, then hold and release Space.
 
-**Landscape is recommended**, especially for two players. Short landscape layouts show the keeper pad during the run-up and flight, replacing controls that are not needed then. Portrait layouts scroll normally. Aim projection updates with the field size and browser viewport.
+Portrait play keeps power, the spin control and Restart/Next in a single column below the pitch without sideways wrapping. The touch spin graphic is 64px square inside a fixed 72px panel, retaining a usable drag target without a large control card. In touch shootouts, the keeper pad appears during run-up and flight, with a compact side-by-side spin/keypad layout in portrait. Short landscape layouts omit the spin readout text but retain the labelled cue ball. Smaller screens can scroll vertically; aim projection updates with the field size and browser viewport.
 
 For iPhone/iPad sharing, host the game folder and open its link in Safari rather than relying on local HTML opened through the Files app. This mode has browser-emulation and synthetic input coverage, but still needs physical iPhone/iPad Safari testing for real multi-touch gestures, audio and graphics performance.
 
@@ -105,9 +108,9 @@ For iPhone/iPad sharing, host the game folder and open its link in Safari rather
 - **Keyboard:** focus the pitch, use arrow keys to aim, hold Space to charge, and release to shoot.
 - **Next penalty / Next team:** advance after a goal, save, or miss. After the match ends, choose **Play again**.
 - **Restart:** reset the round at any time.
-- **Game mode:** choose an AI keeper or a second player on the same computer. Changing mode resets the round.
+- **Game mode:** choose an AI keeper or a second player on the same device from the menu.
 - **Sound on/off:** toggle all sound effects using the button above the pitch. Sound starts after your first keyboard or pointer interaction.
-- **Lighting:** switch between day and night without resetting the match. An Anfield- or Bernabeu-inspired venue is randomly selected when starting or restarting a match.
+- **Lighting:** choose day or night in the menu. An Anfield- or Bernabeu-inspired venue is randomly selected when starting or restarting a match.
 - **Hide aim:** hold the right mouse button to hide the target and native cursor; release to restore them. In the original 2D game, press right before starting a left-button charge. The 3D version supports either button order.
 - **In-flight spin:** gently move the mouse left/right for curl, down for backspin, or up for topspin. Arrow keys also work. The cue-ball dot shows applied spin as it ramps up, not an instant full-strength input. Reverse movement to unwind it.
 
@@ -227,7 +230,10 @@ Verified in VS Code's integrated Chromium browser:
 - Another 17 3D integration checks covered numpad locking, alternating takers/keepers and kits, result ownership, a full five-shot solo round, saveable Panenkas, and all venue/lighting combinations. The compact 1024x600 two-player panel also fits its entire keypad without internal scrolling.
 - A simulated WebGL context loss displayed the error notice and disabled gameplay controls; reloading restored the 3D scene.
 - The bird/fire Easter egg passed 50 deterministic checks covering spawn and proximity thresholds, swept near misses, landing timing, team ownership, goalkeeper-turn preservation, solo play, cancellation, one-shot consumption, all nine keeper moves, unchanged rebounds/misses, effect cleanup, restart/mode reset, fixed-step consistency and reduced-motion flames.
-- Touch mode passed six device-detection fixtures and 19 synthetic input checks, with pointer capture simulated for routing tests. These cover independent fingers, tap-only aiming, charging/release, keeper locking, spin centring without layout movement, cancellation, focus, mode override and team changes. Desktop mouse-button chords were rechecked with browser input.
+- The earlier separate-button touch prototype passed six device-detection fixtures and 19 synthetic input checks, with pointer capture simulated for routing tests. The current pitch-hold controls were subsequently checked with native browser input as described below.
 - Touch layouts were checked at 390x844, 844x390, 667x375, 768x1024, 1024x768 and 1366x768. Aiming remained accurate; the short landscape layouts kept the active keeper keypad fully visible with at least 44-pixel-tall controls.
+- The menus passed 68 checks across both versions: starting with selected settings, quitting from all six gameplay phases, cancelling input, clearing scores/rewards, preventing hidden-game advancement, restoring focus/sound controls and restarting.
+- Native browser touch checks passed charge/release, cancellation, established pointer-capture loss and quitting while held in both versions. A native two-finger 3D check verified spin plus a simultaneous keeper move without stealing the spin pointer. Mouse/keyboard shooting and the supported mouse-button chords were also rechecked.
+- The compact 3D controls passed 72 layout-state checks across solo/duo and all gameplay phases at 390x844, 375x667, 320x568, 844x390, 667x375 and 768x1024. Checks included child-level clipping, the exact 64px spin graphic, stable spin position as readouts change, and the solo Next button fitting within the 375x667 viewport.
 
 Firefox and standalone browser verification remain pending. The narrow-layout checks do not certify mobile touch controls.
