@@ -554,7 +554,17 @@
       }));
     }
 
-    const audio = { context: null, master: null, noise: null, enabled: true, pending: false, voices: new Set() };
+    const audio = { context: null, master: null, noise: null, enabled: true, voices: new Set() };
+
+    function syncAudioUI() {
+      if (ui.sound.disabled) return;
+      const running = Boolean(soundReady());
+      ui.sound.textContent = !audio.enabled ? "Sound off" : running ? "Sound on" : "Enable sound";
+      ui.sound.title = running ? "Turn sound effects off" : "Enable sound effects";
+      ui.sound.setAttribute("aria-pressed", String(running));
+      ui.audioStatus.textContent = audio.enabled && audio.context && !running && !document.hidden ?
+        "Tap Enable sound. On iPhone, also check Silent Mode and media volume." : "";
+    }
 
     function stopSounds() {
       for (const voice of audio.voices) voice.stop();
@@ -573,13 +583,13 @@
     }
 
     async function unlockAudio() {
-      if (!audio.enabled || audio.pending || document.hidden) return;
-      audio.pending = true;
+      if (!audio.enabled || ui.sound.disabled || document.hidden) return;
       try {
         if (!audio.context) {
           if (!window.AudioContext) throw new Error("Web Audio is not supported.");
           const context = new AudioContext();
           audio.context = context;
+          context.addEventListener("statechange", syncAudioUI);
           audio.master = context.createGain();
           audio.master.gain.value = 0.42;
           const compressor = context.createDynamicsCompressor();
@@ -593,11 +603,12 @@
           const samples = audio.noise.getChannelData(0);
           for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
         }
+        syncAudioUI();
+        // A blocked resume may stay pending; a later user gesture must be allowed to retry.
         if (audio.context.state !== "running") await audio.context.resume();
+        syncAudioUI();
       } catch (error) {
         audioFailure(error);
-      } finally {
-        audio.pending = false;
       }
     }
 
@@ -688,19 +699,22 @@
     }
 
     function audioGesture(event) {
+      if (event.type === "pointerdown" && event.pointerType !== "mouse") return;
+      if (event.type === "pointerup" && event.pointerType === "mouse") return;
+      if (event.type === "keydown" && event.repeat) return;
       if (event.isTrusted && event.target !== ui.sound) void unlockAudio();
     }
-    document.addEventListener("pointerdown", audioGesture, { capture: true });
-    document.addEventListener("keydown", audioGesture, { capture: true });
+    for (const type of ["pointerdown", "pointerup", "touchend", "keydown", "click"]) {
+      document.addEventListener(type, audioGesture, { capture: true });
+    }
     ui.sound.addEventListener("click", () => {
-      audio.enabled = !audio.enabled;
-      ui.sound.textContent = audio.enabled ? "Sound on" : "Sound off";
-      ui.sound.title = audio.enabled ? "Turn sound effects off" : "Turn sound effects on";
-      ui.sound.setAttribute("aria-pressed", String(audio.enabled));
+      audio.enabled = !soundReady();
       if (audio.master) audio.master.gain.value = audio.enabled ? 0.42 : 0;
+      syncAudioUI();
       if (audio.enabled) void unlockAudio();
       else stopSounds();
     });
+    syncAudioUI();
 
     const dot3 = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
     const subtract3 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
