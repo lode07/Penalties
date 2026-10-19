@@ -42,12 +42,14 @@
     #pitch { position: relative; }
     .edition a { color: #d5ff72; }
     #graphics-status { padding: 16px; border: 1px solid #df9c75; color: #ffce9e; }
-    .egg-status { position: absolute; right: 14px; top: 12px; max-width: min(280px, 65%); padding: 8px 12px; border: 1px solid #f6a345; border-radius: 8px; background: #321909ed; color: #ffe0a0; font-size: 11px; line-height: 1.4; pointer-events: none; }
+    .egg-status { margin-top: 8px; padding: 8px 10px; border: 1px solid #f6a345; border-radius: 8px; background: #321909ed; color: #ffe0a0; font-size: 11px; line-height: 1.4; }
+    .weather-strip { padding: 6px 12px; background: #14241f; color: #d8e9e0; font-size: 11px; line-height: 1.4; }
+    .weather-gag { margin-top: 8px; padding: 7px 10px; border-radius: 7px; background: #102019ed; color: #fff1b4; font-size: 12px; line-height: 1.4; }
+    .match-messages { min-width: 0; padding: 12px; border-bottom: 1px solid #425444; flex: 1 0 100%; grid-column: 1 / -1; overflow-wrap: anywhere; }
     body.aim-hidden, body.aim-hidden * { cursor: none !important; }
-    .field-label { position: absolute; top: 18px; left: 23px; color: #eef5df9c; font-size: 9px; letter-spacing: 2px; pointer-events: none; }
-    .result { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; width: 90%; text-shadow: 0 3px 18px #102014; }
-    .result strong { display: block; font-size: clamp(28px, 6vw, 64px); letter-spacing: -2px; color: #d5ff72; }
-    .result span { font-size: clamp(12px, 1.8vw, 17px); color: #fff; }
+    .result { margin-top: 8px; }
+    .result strong { display: block; font-size: 26px; letter-spacing: -1px; color: #d5ff72; }
+    .result span { font-size: 12px; line-height: 1.5; color: #fff; }
     [hidden] { display: none !important; }
     .bottom { justify-content: space-between; padding: 20px 24px; gap: 25px; }
     .power { flex: 1; max-width: 420px; }
@@ -61,12 +63,11 @@
     .power-track { position: relative; }
     .chip-zone { position: absolute; left: 22%; width: 23%; top: -3px; height: 15px; border: 1px solid #ffc96b; border-radius: 3px; pointer-events: none; }
     #spin-readout { font-size: 11px; color: #d7deb9; margin-top: 7px; line-height: 1.5; }
-    .spin-panel { position: absolute; right: 16px; bottom: 14px; display: flex; align-items: center; gap: 10px; width: 260px; padding: 10px 12px; border: 1px solid #657b5260; border-radius: 12px; background: #102019eb; box-shadow: 0 6px 20px #0003; pointer-events: none; }
+    .spin-panel { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 1px solid #657b5260; border-radius: 12px; background: #102019eb; box-shadow: 0 6px 20px #0003; pointer-events: none; }
     .spin-panel svg { width: 70px; height: 70px; flex-shrink: 0; overflow: visible; }
     .spin-copy { min-width: 0; }
     .spin-panel.is-chip { border-color: #cfad62; }
     .spin-hint { font-size: 10px; line-height: 1.5; color: #93a98e; margin-top: 4px; }
-    .result strong { text-shadow: 0 3px 0 #102512, 0 8px 28px #061a15a0; }
     .actions { gap: 10px; }
     button { border-radius: 7px; padding: 12px 17px; font-size: 12px; font-weight: 700; min-height: 42px; }
     .secondary { border: 1px solid #50604b; color: #d5dfce; background: transparent; }
@@ -110,7 +111,6 @@
       .instructions { flex-direction: column; gap: 4px; }
       .attempts { gap: 5px; }
       .attempts li { width: 27px; height: 27px; }
-      .field-label { top: 10px; left: 12px; font-size: 8px; }
       .shootout-score { padding: 14px 10px; gap: 10px; }
       .team-card { padding-left: 7px; }
       .team-heading h3 { font-size: 14px; }
@@ -151,8 +151,17 @@
     .keypad { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: none; }
     .keypad [data-move] { padding: 5px; }
     .instructions { flex-shrink: 0; margin-top: 8px; font-size: 11px; line-height: 1.5; }
+    @media (min-width: 901px) {
+      .side-panel { display: flex; flex-direction: column; }
+      .side-panel > * { flex: none; }
+      body.defending .keeper-controls { order: -1; }
+    }
     @media (min-width: 901px) and (max-height: 740px) {
       .bottom { padding: 12px; gap: 10px; }
+      .match-messages { padding: 8px 12px; }
+      .power > .spin-hint, .spin-panel .spin-hint { display: none; }
+      .spin-panel { padding: 4px; gap: 6px; }
+      .spin-panel svg { width: 48px; height: 48px; }
       .actions button { font-size: 11px; }
       .keeper-controls { padding: 12px; gap: 6px; }
       .keeper-controls p { font-size: 10px; line-height: 1.4; }
@@ -259,7 +268,7 @@
     <section class="menu" id="menu" aria-label="Game menu">
     <header>
       <div class="brand"><div class="badge" aria-hidden="true">S</div><div><h1>SPOT KICK 3D</h1><div class="edition">The penalty challenge</div></div></div>
-      <div class="round"><span class="dot"></span> LIVERPOOL vs REAL MADRID</div>
+      <div class="round"><span class="dot"></span> <span id="matchup">LIVERPOOL vs REAL MADRID</span></div>
     </header>
     <section class="intro" aria-labelledby="headline">
       <div><h2>Your moment. Your shot.</h2><p>Pick your corner. Hold your nerve. Beat the keeper.</p></div>
@@ -267,14 +276,18 @@
     </section>
     <div class="mode-bar">
       <label for="mode">Game mode</label>
-      <select id="mode"><option value="solo">1 player - Liverpool practice</option><option value="duo">2 players - club shootout</option></select>
+      <select id="mode"><option value="solo">1 player - practice</option><option value="ai">1 player vs AI - club shootout</option><option value="duo">2 players - club shootout</option></select>
+      <label for="home-team">Home team</label>
+      <select id="home-team"></select>
+      <label for="away-team">Away team</label>
+      <select id="away-team"></select>
       <label for="lighting">Lighting</label>
       <select id="lighting"><option value="night">Night</option><option value="day">Day</option></select>
       <span id="venue"></span>
       <label for="input-mode">Controls</label>
       <select id="input-mode"><option value="auto">Auto</option><option value="touch">Touch</option><option value="desktop">Mouse / keys</option></select>
     </div>
-    <p class="menu-help">Choose your settings, then start. Touch and hold the pitch to aim and charge; release to shoot. Quit to menu ends the current match.</p>
+    <p class="menu-help">Choose your settings, then start. Every match gets random weather, shared by both teams, with gentle wind or surface effects and occasional visual comedy. Touch and hold the pitch to aim and charge; release to shoot. Versus AI: you shoot and keep goal for the home team; the away team is computer-controlled. Use the numpad or on-screen keeper buttons during its run-up. Quit to menu ends the current match.</p>
     <div class="menu-actions" id="menu-actions">
       <button class="primary" id="start" type="button">Start game</button>
       <button class="secondary" id="sound" type="button" aria-pressed="true" title="Turn sound effects off">Sound on</button>
@@ -293,15 +306,28 @@
         <div class="team-card" data-team="0"><div class="eyebrow">Player 1 / Red</div><div class="team-heading"><h3>Liverpool</h3><strong data-score>0</strong></div><ol class="attempts" data-history aria-label="Liverpool penalties"></ol><small data-saves></small></div>
         <div class="team-card madrid" data-team="1"><div class="eyebrow">Player 2 / White</div><div class="team-heading"><h3>Real Madrid</h3><strong data-score>0</strong></div><ol class="attempts" data-history aria-label="Real Madrid penalties"></ol><small data-saves></small></div>
       </div>
-      <div class="turn-strip"><div id="round-label"></div><div id="turn-info"></div></div>
+      <div class="turn-strip"><div class="weather-strip" id="weather-report"></div><div id="round-label"></div><div id="turn-info"></div></div>
       <div class="field">
         <canvas id="world" width="1000" height="600" aria-hidden="true"></canvas>
-        <div class="field-label" aria-hidden="true">THE SPOTLIGHT IS YOURS</div>
         <canvas id="pitch" width="1000" height="600" tabindex="0" aria-label="Penalty pitch. Aim with arrow keys. Hold Space to charge, release to shoot. Move the mouse or use arrows in flight for spin; down adds backspin." aria-describedby="controls">
           This game requires a browser that supports HTML Canvas.
         </canvas>
-        <div id="egg-status" class="egg-status" role="status" aria-live="polite" hidden></div>
+      </div>
+      <aside class="side-panel" aria-label="Shot and goalkeeper controls">
+      <section class="match-messages" aria-label="Match updates">
+        <div class="eyebrow">Match updates</div>
         <div class="result" id="result" hidden><strong id="result-title"></strong><span id="result-detail"></span></div>
+        <div id="egg-status" class="egg-status" role="status" aria-live="polite" hidden></div>
+        <div id="weather-gag" class="weather-gag" role="status" aria-live="polite" hidden></div>
+      </section>
+      <div class="bottom">
+        <div class="power">
+          <div class="power-label"><label class="eyebrow" for="power">Shot power</label><span id="power-value">0%</span></div>
+          <div class="power-track"><meter id="power" min="0" max="100" value="0">0%</meter><span class="chip-zone" title="Panenka power window: 22-45%" aria-hidden="true"></span></div>
+          <div class="power-help" id="power-help">Hold to charge. Release to shoot.</div>
+          <div class="spin-hint">Panenka: 22-45% power + an early downward mouse sweep.</div>
+        </div>
+        <div id="desktop-spin-slot">
           <div class="spin-panel" id="spin-panel">
             <svg id="spin-ball" viewBox="0 0 84 84" role="img" aria-label="Applied spin: neutral">
               <defs><radialGradient id="cue-shade" cx="32%" cy="25%" r="76%"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#edf0e5"/><stop offset="1" stop-color="#899994"/></radialGradient></defs>
@@ -318,14 +344,6 @@
             </svg>
             <div class="spin-copy"><div class="eyebrow">Applied spin</div><div id="spin-readout">Neutral - move gently after contact.</div><div class="spin-hint">Reverse movement to unwind.</div></div>
           </div>
-      </div>
-      <aside class="side-panel" aria-label="Shot and goalkeeper controls">
-      <div class="bottom">
-        <div class="power">
-          <div class="power-label"><label class="eyebrow" for="power">Shot power</label><span id="power-value">0%</span></div>
-          <div class="power-track"><meter id="power" min="0" max="100" value="0">0%</meter><span class="chip-zone" title="Panenka power window: 22-45%" aria-hidden="true"></span></div>
-          <div class="power-help" id="power-help">Hold to charge. Release to shoot.</div>
-          <div class="spin-hint">Panenka: 22-45% power + an early downward mouse sweep.</div>
         </div>
         <div id="touch-controls" hidden>
           <div id="touch-spin-slot"></div>
@@ -386,6 +404,39 @@
       { name: "Santiago Bernabeu", city: "Madrid", banner: "HALA MADRID", seats: "#4d6683" }
     ];
     const chooseStadium = (random = Math.random) => random() < 0.5 ? 0 : 1;
+    const WEATHERS = Object.freeze([
+      { id: "sunny", name: "Sunny", detail: "Clear skies. Normal ball physics.", gags: ["sunglasses", "sweat"] },
+      { id: "windy", name: "Windy", detail: "A steady crosswind bends airborne shots.", gags: ["cap", "hair"] },
+      { id: "rainy", name: "Rainy", detail: "Wet turf: the ball skids further.", retention: 0.9, drag: 0.9, gags: ["splash", "slide"] },
+      { id: "foggy", name: "Foggy", detail: "Misty stands; the ball and target stay visible.", gags: ["binoculars", "nest"] },
+      { id: "snowy", name: "Snowy", detail: "Soft snow: lower bounces and more ground drag.", bounce: 0.3, retention: 0.7, drag: 1.8, gags: ["snowboot", "angel"] },
+      { id: "dusty", name: "Dusty Desert", detail: "Warm haze and drifting dust. Normal ball physics.", gags: ["tumbleweed", "sand"] },
+      { id: "lightning", name: "Lightning", detail: "Thunderstorm! A startled bird may leave a fire-shot reward.", retention: 0.9, drag: 0.9, gags: ["static", "bird"] },
+      { id: "flood", name: "Flood", detail: "Shallow water: softer bounces and slower ground rebounds.", bounce: 0.22, retention: 0.64, drag: 2.2, gags: ["dolphin", "boot", "duck"] }
+    ].map(weather => Object.freeze({ bounce: 0.48, retention: 0.78, drag: 1.4, ...weather })));
+    function chooseWeather(random = Math.random) {
+      const weather = WEATHERS[Math.floor(random() * WEATHERS.length)];
+      return { ...weather, windX: weather.id === "windy" ? (random() < 0.5 ? -1 : 1) * (0.9 + random() * 0.5) : 0 };
+    }
+    const WEATHER_GAGS = Object.freeze({
+      sunglasses: { when: "prep", text: "The keeper has brought enormous sunglasses. Very professional." },
+      sweat: { when: "prep", text: "The taker wipes their brow. The pressure is definitely the weather." },
+      cap: { when: "prep", text: "The keeper's cap has signed for the back of the net." },
+      hair: { when: "prep", text: "The wind has given everyone a spectacular new hairstyle." },
+      splash: { when: "contact", text: "A complimentary splash for the goalkeeper!" },
+      slide: { when: "result", text: "The keeper has switched to penguin mode." },
+      binoculars: { when: "prep", text: "The keeper checks the forecast through binoculars." },
+      nest: { when: "result", text: "The ball returns from the fog with a bird's nest. Nobody asks questions." },
+      snowboot: { when: "prep", text: "The taker shakes a small avalanche out of their boot." },
+      angel: { when: "result", text: "A perfect snow angel. The keeper requests artistic marks." },
+      tumbleweed: { when: "prep", text: "The keeper is marking the tumbleweed. It looks dangerous." },
+      sand: { when: "prep", text: "The taker's boot contains an entire beach." },
+      static: { when: "prep", text: "Thunder hair! No hair gel was required." },
+      bird: { when: "contact", text: "A nearby bolt startles the sooty bird. It flies away unharmed, leaving a fire shot!" },
+      dolphin: { when: "result", text: "The keeper auditions for the dolphin team. Splash!" },
+      boot: { when: "contact", text: "The taker's boot is floating away. It wants a transfer." },
+      duck: { when: "result", text: "The rubber duck crosses the line and celebrates. No goal awarded." }
+    });
     const KEEPER_MOVES = Object.freeze({
       7: { label: "Top left", x: -2.25, y: 1.78, lean: -1.2, reach: 1, crouch: 0 },
       8: { label: "Jump", x: 0, y: 1.22, lean: 0, reach: 1, crouch: 0 },
@@ -397,7 +448,7 @@
       2: { label: "Crouch", x: 0, y: 0.57, lean: 0, reach: -0.5, crouch: 1 },
       3: { label: "Low right", x: 2.25, y: 0.52, lean: 1.5, reach: 1, crouch: 0 }
     });
-    const TEAMS = [
+    const CLUBS = [
       {
         name: "Liverpool", short: "Liverpool", keeperIndex: 10,
         kit: { main: "#d71937", light: "#f14a55", dark: "#8e102b", trim: "#fff2de", number: "#ffffff" },
@@ -425,6 +476,67 @@
         ]
       }
     ];
+    function createClub(name, main, trim, outfield, goalkeeper) {
+      return {
+        name, short: name, keeperIndex: 10,
+        kit: { main, light: shadeColor(main, 0.25), dark: shadeColor(main, -0.35), trim, number: trim },
+        keeperKit: { main: "#47b875", light: "#8fe1a2", dark: "#21774c", trim: "#d6ffe5", number: "#142e26" },
+        players: [...outfield, goalkeeper].map(([name, number]) => ({ name, number }))
+      };
+    }
+    CLUBS.push(
+      createClub("Barcelona", "#a51c44", "#f4ce54", [
+        ["Robert Lewandowski", 9], ["Lamine Yamal", 10], ["Raphinha", 11], ["Pedri", 8],
+        ["Dani Olmo", 20], ["Frenkie de Jong", 21], ["Ferran Torres", 7],
+        ["Jules Kounde", 23], ["Pau Cubarsi", 5], ["Alejandro Balde", 3]
+      ], ["Joan Garcia", 13]),
+      createClub("Bayern Munich", "#dc143c", "#ffffff", [
+        ["Harry Kane", 9], ["Jamal Musiala", 10], ["Michael Olise", 17], ["Luis Diaz", 14],
+        ["Serge Gnabry", 7], ["Joshua Kimmich", 6], ["Leon Goretzka", 8],
+        ["Alphonso Davies", 19], ["Dayot Upamecano", 2], ["Jonathan Tah", 4]
+      ], ["Manuel Neuer", 1]),
+      createClub("PSG", "#19294f", "#ffffff", [
+        ["Ousmane Dembele", 10], ["Vitinha", 17], ["Khvicha Kvaratskhelia", 7], ["Desire Doue", 14],
+        ["Bradley Barcola", 29], ["Joao Neves", 87], ["Fabian Ruiz", 8],
+        ["Achraf Hakimi", 2], ["Marquinhos", 5], ["Nuno Mendes", 25]
+      ], ["Lucas Chevalier", 30]),
+      createClub("Arsenal", "#db2536", "#ffffff", [
+        ["Bukayo Saka", 7], ["Martin Odegaard", 8], ["Viktor Gyokeres", 14], ["Kai Havertz", 29],
+        ["Gabriel Martinelli", 11], ["Declan Rice", 41], ["Eberechi Eze", 10],
+        ["William Saliba", 2], ["Gabriel Magalhaes", 6], ["Jurrien Timber", 12]
+      ], ["David Raya", 1]),
+      createClub("Man UTD", "#da291c", "#ffffff", [
+        ["Bruno Fernandes", 8], ["Bryan Mbeumo", 19], ["Matheus Cunha", 10], ["Benjamin Sesko", 30],
+        ["Amad Diallo", 16], ["Mason Mount", 7], ["Casemiro", 18],
+        ["Lisandro Martinez", 6], ["Matthijs de Ligt", 4], ["Diogo Dalot", 2]
+      ], ["Senne Lammens", 31]),
+      createClub("Man City", "#6cabdd", "#162c46", [
+        ["Erling Haaland", 9], ["Phil Foden", 47], ["Omar Marmoush", 7], ["Tijjani Reijnders", 4],
+        ["Rayan Cherki", 10], ["Jeremy Doku", 11], ["Rodri", 16],
+        ["Bernardo Silva", 20], ["Ruben Dias", 3], ["Josko Gvardiol", 24]
+      ], ["Gianluigi Donnarumma", 25]),
+      createClub("Napoli", "#159dde", "#ffffff", [
+        ["Romelu Lukaku", 9], ["Scott McTominay", 8], ["Kevin De Bruyne", 11], ["Rasmus Hojlund", 19],
+        ["Matteo Politano", 21], ["David Neres", 7], ["Stanislav Lobotka", 68],
+        ["Andre-Frank Zambo Anguissa", 99], ["Giovanni Di Lorenzo", 22], ["Alessandro Buongiorno", 4]
+      ], ["Alex Meret", 1]),
+      createClub("Juventus", "#eeeeee", "#20252b", [
+        ["Dusan Vlahovic", 9], ["Kenan Yildiz", 10], ["Jonathan David", 30], ["Francisco Conceicao", 7],
+        ["Teun Koopmeiners", 8], ["Manuel Locatelli", 5], ["Khephren Thuram", 19],
+        ["Weston McKennie", 22], ["Gleison Bremer", 3], ["Andrea Cambiaso", 27]
+      ], ["Michele Di Gregorio", 16]),
+      createClub("Inter Milan", "#1757bd", "#ffffff", [
+        ["Lautaro Martinez", 10], ["Marcus Thuram", 9], ["Hakan Calhanoglu", 20], ["Nicolo Barella", 23],
+        ["Federico Dimarco", 32], ["Denzel Dumfries", 2], ["Henrikh Mkhitaryan", 22],
+        ["Alessandro Bastoni", 95], ["Francesco Acerbi", 15], ["Manuel Akanji", 25]
+      ], ["Yann Sommer", 1]),
+      createClub("AC Milan", "#b51b2c", "#ffffff", [
+        ["Rafael Leao", 10], ["Christian Pulisic", 11], ["Santiago Gimenez", 7], ["Christopher Nkunku", 18],
+        ["Luka Modric", 14], ["Adrien Rabiot", 12], ["Youssouf Fofana", 19],
+        ["Alexis Saelemaekers", 56], ["Fikayo Tomori", 23], ["Matteo Gabbia", 46]
+      ], ["Mike Maignan", 16])
+    );
+    const TEAMS = [CLUBS[0], CLUBS[1]];
     const canvas = document.getElementById("pitch");
     const ctx = canvas.getContext("2d");
     if (!ctx) {
@@ -443,6 +555,9 @@
       detail: document.getElementById("result-detail"), status: document.getElementById("status"),
       next: document.getElementById("next"), restart: document.getElementById("restart"),
       mode: document.getElementById("mode"), keeperControls: document.getElementById("keeper-controls"),
+      homeTeam: document.getElementById("home-team"), awayTeam: document.getElementById("away-team"),
+      matchup: document.getElementById("matchup"),
+      weatherReport: document.getElementById("weather-report"), weatherGag: document.getElementById("weather-gag"),
       keeperStatus: document.getElementById("keeper-status"), keeperHeading: document.getElementById("keeper-heading"),
       soloScore: document.getElementById("solo-score"), shootoutScore: document.getElementById("shootout-score"),
       roundLabel: document.getElementById("round-label"), turnInfo: document.getElementById("turn-info"),
@@ -452,15 +567,20 @@
       spinDot: document.getElementById("spin-dot"), spinPanel: document.getElementById("spin-panel"),
       inputMode: document.getElementById("input-mode"), touchControls: document.getElementById("touch-controls"),
       touchHide: document.getElementById("touch-hide"),
+      desktopSpinSlot: document.getElementById("desktop-spin-slot"),
       touchSpinSlot: document.getElementById("touch-spin-slot"), keeperHelp: document.getElementById("keeper-help")
     };
     const standingKeeper = () => ({ x: 0, y: 0.95, lean: 0, reach: 0, crouch: 0 });
+    for (const select of [ui.homeTeam, ui.awayTeam]) {
+      CLUBS.forEach((club, index) => select.add(new Option(club.name, String(index))));
+    }
+    ui.awayTeam.value = "1";
     const state = {
       playing: false,
       mode: "solo", phase: "aiming", turn: 0, histories: [[], []], winner: null, aim: { x: 1.7, y: 1.4 },
-      charge: 0, chargeStart: 0, input: null, shot: null, keeper: standingKeeper(),
+      charge: 0, chargeStart: 0, input: null, shot: null, keeper: standingKeeper(), aiShotAt: null,
       lighting: "night", stadium: chooseStadium(), aimHidden: false,
-      fireCharges: [false, false], bird: null
+      fireCharges: [false, false], bird: null, weather: chooseWeather(), comedy: null
     };
     const keys = new Set();
     let pointerId = null;
@@ -482,7 +602,7 @@
       touchMode = ui.inputMode.value === "touch" || (ui.inputMode.value === "auto" && isAppleTouchDevice(navigator));
       document.body.classList.toggle("touch-mode", touchMode);
       ui.touchControls.hidden = !touchMode;
-      (touchMode ? ui.touchSpinSlot : canvas.parentElement).appendChild(ui.spinPanel);
+      (touchMode ? ui.touchSpinSlot : ui.desktopSpinSlot).appendChild(ui.spinPanel);
       ui.spinBall.setAttribute("tabindex", touchMode ? "0" : "-1");
       ui.spinBall.setAttribute("role", touchMode ? "group" : "img");
       ui.spinBall.setAttribute("aria-describedby", touchMode ? "touch-instructions" : "controls");
@@ -499,6 +619,10 @@
     const goalsIn = history => history.filter(shot => shot.type === "goal").length;
     const currentKicker = () => state.shot ? state.shot.player : TEAMS[state.turn].players[state.histories[state.turn].length % TEAMS[state.turn].players.length];
     const currentGoalkeeper = () => TEAMS[1 - state.turn].players[TEAMS[1 - state.turn].keeperIndex];
+    const isShootout = () => state.mode !== "solo";
+    const isAITurn = () => state.mode === "ai" && state.turn === 1;
+    const humanKeeps = () => state.mode === "duo" || isAITurn();
+    const controllerName = team => state.mode === "ai" ? team === 0 ? "You" : "AI" : `Player ${team + 1}`;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let scene3d;
     let graphicsReady = false;
@@ -695,6 +819,9 @@
         for (const delay of [0.65, 0.94, 1.23]) {
           soundVoice({ frequency: 2350, end: 2290, duration: delay > 1 ? 0.5 : 0.16, volume: 0.045, delay, cutoff: 4000 });
         }
+      } else if (effect === "thunder") {
+        soundVoice({ noise: true, cutoff: 180, duration: 1.1, volume: 0.18, attack: 0.12 });
+        soundVoice({ frequency: 55, end: 32, duration: 0.7, volume: 0.12, attack: 0.08 });
       }
     }
 
@@ -801,11 +928,11 @@
       return parts;
     }
 
-    function createFlight(target, power) {
+    function createFlight(target, power, weather = state.weather) {
       const duration = lerp(CONFIG.slowFlightMs, CONFIG.fastFlightMs, power);
       const seconds = duration / 1000;
       return {
-        duration, power, ticks: 0, spin: { side: 0, back: 0 }, spinTarget: { side: 0, back: 0 }, chip: false,
+        duration, power, weather: { ...weather }, ticks: 0, spin: { side: 0, back: 0 }, spinTarget: { side: 0, back: 0 }, chip: false,
         ball: {
           p: { x: 0, y: CONFIG.ballRadius, z: 0 },
           v: { x: target.x / seconds, y: (target.y - CONFIG.ballRadius + CONFIG.gravity * seconds * seconds / 2) / seconds, z: CONFIG.goalDistance / seconds }
@@ -861,20 +988,56 @@
       if (notice.textContent !== message) notice.textContent = message;
     }
 
+    function createWeatherComedy(now, random = Math.random) {
+      if (random() >= 0.7) return null;
+      const gags = state.weather.gags.filter(kind => kind !== "bird" || Boolean(state.bird));
+      const kind = gags[Math.floor(random() * gags.length)];
+      return { kind, readyAt: now + 500, activeAt: null, until: null };
+    }
+
+    function updateWeatherComedy(now) {
+      const gag = state.comedy;
+      if (!gag) return;
+      if (gag.activeAt === null) {
+        const when = WEATHER_GAGS[gag.kind].when;
+        const afterContact = state.shot && now >= state.shot.start + 120;
+        const afterResult = state.shot && state.shot.resultAt !== undefined && now >= state.shot.resultAt + 150;
+        if (when === "prep" ? !(state.phase === "aiming" && now >= gag.readyAt) && !afterContact :
+          when === "contact" ? !afterContact : !afterResult) return;
+        if (gag.kind === "bird") {
+          if (state.bird && now < state.bird.perchAt + 150) return;
+          if (!state.bird || state.bird.fleeAt !== null || state.shot.fire) gag.kind = "static";
+          else {
+            state.bird.fleeAt = now;
+            state.bird.sooty = true;
+            state.fireCharges[state.turn] = true;
+            updateEggUI();
+          }
+        }
+        if (gag.kind === "nest" && state.shot.outcome.type !== "miss") gag.kind = "binoculars";
+        gag.activeAt = now;
+        gag.until = now + 4200;
+        ui.weatherGag.textContent = gag.kind === "duck" && state.shot.outcome.type === "miss" ?
+          "The rubber duck celebrates your miss. No goal awarded." : WEATHER_GAGS[gag.kind].text;
+        if (state.weather.id === "lightning") playSound("thunder");
+      }
+      ui.weatherGag.hidden = now >= gag.until;
+    }
+
     function stepFlight(shot, keeper, dt) {
       smoothSpin(shot, dt);
       const ball = shot.ball;
       const grounded = ball.p.y <= CONFIG.ballRadius + 1e-6 && Math.abs(ball.v.y) < 0.45;
       const forwardFraction = Math.max(0, 1 - ball.p.z / CONFIG.goalDistance);
       const acceleration = {
-        x: shot.spin.side * CONFIG.curlAcceleration * ball.v.z / (CONFIG.goalDistance * 1000 / shot.duration),
+        x: (grounded ? 0 : shot.weather.windX) + shot.spin.side * CONFIG.curlAcceleration * ball.v.z / (CONFIG.goalDistance * 1000 / shot.duration),
         y: grounded ? 0 : -CONFIG.gravity + shot.spin.back * CONFIG.backspinLift * forwardFraction,
         z: ball.v.z > 0 ? -Math.max(0, shot.spin.back) * CONFIG.backspinDrag : 0
       };
       if (grounded) {
         ball.v.y = 0;
-        ball.v.x *= Math.exp(-1.4 * dt);
-        ball.v.z *= Math.exp(-1.4 * dt);
+        ball.v.x *= Math.exp(-shot.weather.drag * dt);
+        ball.v.z *= Math.exp(-shot.weather.drag * dt);
       }
       let delta = advance3({ x: ball.v.x * dt, y: ball.v.y * dt, z: ball.v.z * dt }, acceleration, dt * dt / 2);
       ball.v = advance3(ball.v, acceleration, dt);
@@ -912,10 +1075,10 @@
         }
         if (nearest.kind === "ground") {
           ball.p.y = CONFIG.ballRadius;
-          ball.v.y = Math.abs(ball.v.y) * 0.48;
+          ball.v.y = Math.abs(ball.v.y) * shot.weather.bounce;
           if (ball.v.y < 0.45) ball.v.y = 0;
-          ball.v.x *= 0.78;
-          ball.v.z *= 0.78;
+          ball.v.x *= shot.weather.retention;
+          ball.v.z *= shot.weather.retention;
           remaining *= 1 - nearest.t;
           delta = { x: ball.v.x * remaining, y: ball.v.y * remaining, z: ball.v.z * remaining };
           continue;
@@ -934,10 +1097,10 @@
       }
       if (ball.p.y < CONFIG.ballRadius) {
         ball.p.y = CONFIG.ballRadius;
-        ball.v.y = Math.abs(ball.v.y) * 0.48;
+        ball.v.y = Math.abs(ball.v.y) * shot.weather.bounce;
         if (ball.v.y < 0.45) ball.v.y = 0;
-        ball.v.x *= 0.78;
-        ball.v.z *= 0.78;
+        ball.v.x *= shot.weather.retention;
+        ball.v.z *= shot.weather.retention;
       }
       shot.peakHeight = Math.max(shot.peakHeight, ball.p.y);
       const time = shot.ticks / CONFIG.physicsHz;
@@ -962,6 +1125,7 @@
     }
 
     function addSpin(shot, side, back) {
+      if (isAITurn()) return;
       const target = { side: shot.spinTarget.side + side, back: shot.spinTarget.back + back };
       const length = Math.max(1, Math.hypot(target.side, target.back));
       shot.spinTarget.side = target.side / length;
@@ -1030,20 +1194,25 @@
     }
 
     function commitKeeperMove(key, now) {
-      if (state.mode !== "duo") return;
+      if (!state.playing || !humanKeeps()) return;
       update(now, 0);
       if ((state.phase !== "runup" && state.phase !== "shooting") || state.shot.keeperMove) return;
       state.shot.keeperMove = { ...KEEPER_MOVES[key], key, start: now };
-      syncUI(`Player ${2 - state.turn} (${currentGoalkeeper().name}) committed: ${KEEPER_MOVES[key].label}.`);
+      syncUI(`${controllerName(1 - state.turn)} (${currentGoalkeeper().name}) committed: ${KEEPER_MOVES[key].label}.`);
     }
 
     function syncUI(message) {
       ui.goals.textContent = goalsIn(state.histories[0]);
+      ui.matchup.textContent = `${TEAMS[0].name.toUpperCase()} vs ${TEAMS[1].name.toUpperCase()}`;
+      ui.weatherReport.textContent = `Weather: ${state.weather.name}. ${state.weather.detail}${state.weather.windX ? ` Wind ${state.weather.windX < 0 ? "LEFT" : "RIGHT"}: ${Math.abs(state.weather.windX).toFixed(1)} m/s\u00b2. Aim into the wind.` : ""}`;
+      ui.soloScore.querySelector(".eyebrow").textContent = `${TEAMS[0].name} goals`;
+      ui.attempts.setAttribute("aria-label", `${TEAMS[0].name} penalties`);
       ui.mode.value = state.mode;
       ui.lighting.value = state.lighting;
       ui.venue.textContent = `Venue: ${STADIUMS[state.stadium].name} (${STADIUMS[state.stadium].city})`;
-      const duo = state.mode === "duo";
-      ui.keeperControls.hidden = !duo;
+      const duo = isShootout();
+      const defending = humanKeeps();
+      ui.keeperControls.hidden = !defending;
       ui.soloScore.hidden = duo;
       ui.shootoutScore.hidden = !duo;
       const waiting = state.phase === "aiming" || state.phase === "charging" || state.phase === "runup" || state.phase === "shooting";
@@ -1051,6 +1220,10 @@
       const slots = Math.max(CONFIG.attempts, ...state.histories.map(history => history.length), waiting ? attempt : 0);
       for (const card of ui.shootoutScore.querySelectorAll("[data-team]")) {
         const team = Number(card.dataset.team);
+        card.querySelector(".eyebrow").textContent = `${controllerName(team)} / ${team === 0 ? "Home" : "Away"}`;
+        card.style.borderColor = TEAMS[team].kit.main;
+        card.querySelector("h3").textContent = TEAMS[team].name;
+        card.querySelector("[data-history]").setAttribute("aria-label", `${TEAMS[team].name} penalties`);
         card.classList.toggle("active", state.phase === "gameOver" ? state.winner === team : state.turn === team);
         card.querySelector("[data-score]").textContent = goalsIn(state.histories[team]);
         card.querySelector("[data-saves]").textContent = `${state.histories[team].length} kicks | ${state.histories[1 - team].filter(shot => shot.type === "saved").length} saves`;
@@ -1060,22 +1233,24 @@
       ui.roundLabel.textContent = state.phase === "gameOver" ? duo ? "Shootout complete" : "Practice complete" :
         tiedAfterFive ? "Level after five each - sudden death next" :
         duo && attempt > CONFIG.attempts ? `Sudden death - round ${attempt - CONFIG.attempts}` : `${duo ? "Shootout" : "Practice"} - kick ${attempt} of 5`;
-      ui.turnInfo.textContent = `${duo ? `P${state.turn + 1} ` : ""}${TEAMS[state.turn].name}: ${currentKicker().name} shoots | ${duo ? `P${2 - state.turn} ` : "AI "}${TEAMS[1 - state.turn].name}: ${currentGoalkeeper().name} in goal`;
-      if (state.phase === "gameOver" && duo) ui.turnInfo.textContent = `Player ${state.winner + 1} wins with ${TEAMS[state.winner].name}! ${goalsIn(state.histories[0])} - ${goalsIn(state.histories[1])} on penalties.`;
-      ui.keeperHeading.textContent = `Player ${2 - state.turn} / ${TEAMS[1 - state.turn].name} goalkeeper`;
+      ui.turnInfo.textContent = `${duo ? `${controllerName(state.turn)} / ` : ""}${TEAMS[state.turn].name}: ${currentKicker().name} shoots | ${duo ? `${controllerName(1 - state.turn)} / ` : "AI "}${TEAMS[1 - state.turn].name}: ${currentGoalkeeper().name} in goal`;
+      if (state.phase === "gameOver" && duo) ui.turnInfo.textContent = `${controllerName(state.winner)} ${state.mode === "ai" && state.winner === 0 ? "win" : "wins"} with ${TEAMS[state.winner].name}! ${goalsIn(state.histories[0])} - ${goalsIn(state.histories[1])} on penalties.`;
+      ui.keeperHeading.textContent = `${controllerName(1 - state.turn)} / ${TEAMS[1 - state.turn].name} goalkeeper`;
       const controlsHelp = touchMode ? "touch-instructions" : "controls";
-      canvas.setAttribute("aria-describedby", duo ? `${controlsHelp} keeper-controls` : controlsHelp);
+      canvas.setAttribute("aria-describedby", defending ? `${controlsHelp} keeper-controls` : controlsHelp);
       const move = state.shot && state.shot.keeperMove;
       ui.keeperStatus.textContent = move ? `Locked: ${move.label}` :
         state.phase === "runup" || state.phase === "shooting" ? "Choose your move now!" :
         state.phase === "result" || state.phase === "gameOver" ? "Penalty complete." : "Wait for the run-up.";
       const moving = state.phase === "runup" || state.phase === "shooting";
-      document.body.classList.toggle("touch-defending", touchMode && duo && moving);
+      document.body.classList.toggle("defending", defending && moving);
+      document.body.classList.toggle("touch-defending", touchMode && defending && moving);
       for (const cell of ui.keeperControls.querySelectorAll("[data-move]")) {
         cell.classList.toggle("selected", Boolean(move && move.key === cell.dataset.move));
-        cell.disabled = !touchMode || !duo || !moving || Boolean(move);
+        cell.disabled = (!touchMode && state.mode !== "ai") || !defending || !moving || Boolean(move);
       }
-      ui.touchHide.disabled = !waiting;
+      ui.spinPanel.hidden = isAITurn();
+      ui.touchHide.disabled = !waiting || isAITurn();
       ui.attemptLabel.textContent = state.phase === "gameOver" ? "Round complete" : `Penalty ${attempt} of 5`;
       renderHistory(ui.attempts, state.histories[0], waiting, CONFIG.attempts);
       ui.next.disabled = state.phase !== "result" && state.phase !== "gameOver";
@@ -1084,7 +1259,7 @@
       ui.powerHelp.textContent = state.phase === "runup" ? "Here comes the kicker. Keeper, get ready!" :
         state.phase === "shooting" ? "Shot away. Can the keeper reach it?" :
         state.phase === "result" ? "Take a breath. Your next shot is waiting." :
-        state.phase === "gameOver" ? "Match finished. Play again?" : touchMode ? "Hold the pitch to charge. Release to shoot." : "Hold to charge. Release to shoot.";
+        state.phase === "gameOver" ? "Match finished. Play again?" : isAITurn() ? "AI preparing to shoot. Get ready to keep goal!" : touchMode ? "Hold the pitch to charge. Release to shoot." : "Hold to charge. Release to shoot.";
       if (message) ui.status.textContent = message;
       updatePower();
       updateSpinUI();
@@ -1119,14 +1294,18 @@
       state.chargeStart = 0;
       state.input = null;
       state.shot = null;
+      state.aiShotAt = state.playing && isAITurn() ? performance.now() + 1400 : null;
       state.keeper = standingKeeper();
       state.bird = state.fireCharges[state.turn] ? null : createBird(performance.now());
+      state.comedy = state.playing ? createWeatherComedy(performance.now()) : null;
+      ui.weatherGag.hidden = true;
+      ui.weatherGag.textContent = "";
       keys.clear();
       pointerPosition = null;
       releasePointer();
       Object.values(touchPointers).forEach(releaseTouchPointer);
       syncUI();
-      ui.status.textContent = `${ui.roundLabel.textContent}. ${ui.turnInfo.textContent}. Aim, hold to charge, then release.`;
+      ui.status.textContent = `${ui.weatherReport.textContent} ${ui.roundLabel.textContent}. ${ui.turnInfo.textContent}. ${isAITurn() ? "AI preparing to shoot. Choose your keeper move when the run-up starts." : "Aim, hold to charge, then release."}`;
     }
 
     function restart() {
@@ -1136,6 +1315,7 @@
       state.winner = null;
       state.fireCharges = [false, false];
       state.stadium = chooseStadium();
+      state.weather = chooseWeather();
       resetAttempt();
       if (state.playing) canvas.focus({ preventScroll: true });
     }
@@ -1168,7 +1348,7 @@
     }
 
     function beginCharge(input, now) {
-      if (!state.playing || state.phase !== "aiming") return;
+      if (!state.playing || isAITurn() || state.phase !== "aiming") return;
       state.phase = "charging";
       state.input = input;
       state.chargeStart = now;
@@ -1203,7 +1383,21 @@
 
     function shoot(input, now) {
       if (!state.playing || state.phase !== "charging" || state.input !== input) return;
-      state.charge = clamp((now - state.chargeStart) / CONFIG.chargeMs, 0, 1);
+      startShot(clamp((now - state.chargeStart) / CONFIG.chargeMs, 0, 1), now);
+    }
+
+    function chooseAIShot(random = Math.random) {
+      const power = 0.5 + random() * 0.45;
+      const seconds = lerp(CONFIG.slowFlightMs, CONFIG.fastFlightMs, power) / 1000;
+      return {
+        target: { x: (random() * 2 - 1) * 3.85 - state.weather.windX * seconds * seconds / 2, y: 0.25 + random() * 2.4 },
+        power
+      };
+    }
+
+    function startShot(power, now) {
+      state.charge = power;
+      state.aiShotAt = null;
       state.shot = {
         ...createFlight(state.aim, state.charge),
         player: currentKicker(), attempt: state.histories[state.turn].length + 1,
@@ -1212,7 +1406,7 @@
         fire: state.fireCharges[state.turn], bird: state.bird, scaredBird: false, birdRewarded: false
       };
       state.fireCharges[state.turn] = false;
-      if (state.mode === "solo") {
+      if (!humanKeeps()) {
         const direction = Math.sign(chooseKeeper(state.aim.x));
         const row = state.aim.y > 1.65 ? 7 : state.aim.y < 0.8 ? 1 : 4;
         const key = String(row + direction + 1);
@@ -1222,14 +1416,14 @@
       state.input = null;
       keys.clear();
       playSound("runup");
-      syncUI(state.mode === "duo" ? `Run-up! Player ${2 - state.turn}, choose one number pad move now.` : "The kicker begins the run-up.");
+      syncUI(humanKeeps() ? `Run-up! ${controllerName(1 - state.turn)}, choose one keeper move now.` : "The kicker begins the run-up.");
     }
 
     function finishShot(outcome) {
       if (state.phase !== "shooting") return;
       state.shot.resultAt = performance.now();
       state.histories[state.turn].push({ type: outcome.type, player: state.shot.player });
-      const duo = state.mode === "duo";
+      const duo = isShootout();
       state.winner = duo ? shootoutWinner(state.histories) : null;
       state.phase = (duo ? state.winner !== null : state.histories[0].length === CONFIG.attempts) ? "gameOver" : "result";
       const final = state.phase === "gameOver";
@@ -1238,14 +1432,19 @@
       ui.title.textContent = final ? duo ? `${TEAMS[state.winner].short.toUpperCase()} WIN!` : `${goalsIn(state.histories[0])} OUT OF 5` : outcome.title;
       ui.title.style.color = final || outcome.type === "goal" ? "#d5ff72" : "#ffce9e";
       ui.detail.textContent = final && duo ?
-        `Liverpool ${goalsIn(state.histories[0])} - ${goalsIn(state.histories[1])} Real Madrid. Player ${state.winner + 1} wins.` :
+        `${TEAMS[0].name} ${goalsIn(state.histories[0])} - ${goalsIn(state.histories[1])} ${TEAMS[1].name}. ${controllerName(state.winner)} ${state.mode === "ai" && state.winner === 0 ? "win" : "wins"}.` :
         `${state.shot.player.name}: ${outcome.detail}`;
-      syncUI(`${outcome.type.toUpperCase()}. ${ui.detail.textContent} ${final ? "Match complete. Play again to restart." : duo ? `Next: Player ${2 - state.turn}, ${TEAMS[1 - state.turn].name}. Swap shooting and keeper controls.` : "Select Next penalty to continue."}`);
+      syncUI(`${outcome.type.toUpperCase()}. ${ui.detail.textContent} ${final ? "Match complete. Play again to restart." : duo ? `Next: ${controllerName(1 - state.turn)}, ${TEAMS[1 - state.turn].name}. Select Next to continue.` : "Select Next penalty to continue."}`);
     }
 
     function update(now, delta) {
       if (!state.playing) return;
-      if (state.phase === "aiming" || state.phase === "charging") {
+      if (isAITurn() && state.phase === "aiming" && state.aiShotAt !== null && now >= state.aiShotAt) {
+        const choice = chooseAIShot();
+        state.aim = choice.target;
+        startShot(choice.power, now);
+      }
+      if (!isAITurn() && (state.phase === "aiming" || state.phase === "charging")) {
         const horizontal = Number(keys.has("ArrowRight")) - Number(keys.has("ArrowLeft"));
         const vertical = Number(keys.has("ArrowUp")) - Number(keys.has("ArrowDown"));
         state.aim.x = clamp(state.aim.x + horizontal * delta * CONFIG.keyboardSpeed, -CONFIG.aimX, CONFIG.aimX);
@@ -1290,9 +1489,11 @@
       if (state.shot && (state.phase === "result" || state.phase === "gameOver")) {
         state.keeper = keeperAt(state.shot, now - state.shot.start);
       }
+      updateWeatherComedy(now);
     }
 
     function pointerAim(event) {
+      if (isAITurn()) return;
       const bounds = canvas.getBoundingClientRect();
       const x = (event.clientX - bounds.left) * CONFIG.width / bounds.width;
       const y = (event.clientY - bounds.top) * CONFIG.height / bounds.height;
@@ -1419,11 +1620,11 @@
         commitKeeperMove(button.dataset.move, performance.now());
       });
       button.addEventListener("click", event => {
-        if (touchMode && event.detail === 0) commitKeeperMove(button.dataset.move, performance.now());
+        if (!touchMode || event.detail === 0) commitKeeperMove(button.dataset.move, performance.now());
       });
     }
     window.addEventListener("keydown", event => {
-      if (!/^Numpad[1-9]$/.test(event.code) || state.mode !== "duo" || document.activeElement !== canvas) return;
+      if (!/^Numpad[1-9]$/.test(event.code) || !humanKeeps() || document.activeElement !== canvas) return;
       event.preventDefault();
       if (!event.repeat) commitKeeperMove(event.code.slice(-1), performance.now());
     });
@@ -1464,6 +1665,17 @@
       state.mode = ui.mode.value;
       restart();
     });
+    for (const [slot, select] of [ui.homeTeam, ui.awayTeam].entries()) {
+      select.addEventListener("change", () => {
+        const selected = CLUBS[Number(select.value)];
+        if (selected === TEAMS[1 - slot]) {
+          TEAMS[1 - slot] = TEAMS[slot];
+          (slot === 0 ? ui.awayTeam : ui.homeTeam).value = String(CLUBS.indexOf(TEAMS[1 - slot]));
+        }
+        TEAMS[slot] = selected;
+        restart();
+      });
+    }
     ui.lighting.addEventListener("change", () => {
       state.lighting = ui.lighting.value;
       syncUI(`${state.lighting === "day" ? "Day" : "Night"} lighting selected. Match score unchanged.`);
@@ -1473,7 +1685,7 @@
     ui.next.addEventListener("click", () => {
       if (state.phase === "gameOver") restart();
       else if (state.phase === "result") {
-        if (state.mode === "duo") state.turn = 1 - state.turn;
+        if (isShootout()) state.turn = 1 - state.turn;
         resetAttempt();
         canvas.focus({ preventScroll: true });
       }
@@ -1811,8 +2023,6 @@
         line({ x: aim.x, y: aim.y + sign * 9 }, { x: aim.x, y: aim.y + sign * 21 }, "#e0ff99", 2);
       }
       ellipse(aim.x, aim.y, 2, 2, "#efffce");
-      ctx.textAlign = "center"; ctx.font = "bold 9px Segoe UI, sans-serif"; ctx.fillStyle = "#e2f4c5";
-      ctx.fillText(state.phase === "charging" ? "RELEASE TO SHOOT" : "AIM HERE", aim.x, aim.y - 27);
       ctx.restore();
     }
 
@@ -1879,7 +2089,7 @@
       ctx.setTransform(canvas.width / CONFIG.width, 0, 0, canvas.height / CONFIG.height, 0, 0);
       ctx.clearRect(0, 0, CONFIG.width, CONFIG.height);
       scene3d.render(state, keeperParts(state.keeper), currentKicker(), currentGoalkeeper(), performance.now(), reducedMotion.matches);
-      if (!state.aimHidden && (state.phase === "aiming" || state.phase === "charging")) drawAim();
+      if (!isAITurn() && !state.aimHidden && (state.phase === "aiming" || state.phase === "charging")) drawAim();
     }
 
     function resize() {

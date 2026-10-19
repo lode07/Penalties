@@ -58,6 +58,7 @@ class FootballScene3D {
     this.trail = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: "#e5f4d3", transparent: true, opacity: 0.3 }));
     this.scene.add(this.trail);
     this.makeEasterEgg();
+    this.makeWeather();
     this.lastLighting = null;
     this.lastVenue = null;
   }
@@ -242,6 +243,7 @@ class FootballScene3D {
     const hairMaterial = this.material("#292522", 1);
     const hair = this.mesh(new THREE.SphereGeometry(1, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.53), hairMaterial);
     hair.scale.set(0.12, 0.155, 0.125); hair.position.y = 0.012; actor.head.add(hair);
+    actor.hair = hair;
     const nape = this.mesh(new THREE.SphereGeometry(1, 18, 8, Math.PI, Math.PI, Math.PI * 0.5, Math.PI * 0.28), hairMaterial);
     nape.scale.copy(hair.scale); actor.head.add(nape);
     const nose = this.mesh(this.sphere, skin);
@@ -396,9 +398,339 @@ class FootballScene3D {
     this.camera.updateProjectionMatrix();
   }
 
+  weatherShape(parent, scale, position, color) {
+    const shape = this.mesh(this.sphere, this.material(color));
+    shape.scale.set(...scale);
+    shape.position.set(...position);
+    parent.add(shape);
+    return shape;
+  }
+
+  makeWeather() {
+    this.weatherFX = new THREE.Group();
+    this.scene.add(this.weatherFX);
+    const positions = new Float32Array(200 * 3);
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    this.weatherParticles = new THREE.Points(geometry, new THREE.PointsMaterial({
+      color: "#d9eeff", size: 0.045, transparent: true, opacity: 0.6, depthWrite: false
+    }));
+    this.weatherParticles.frustumCulled = false;
+    this.weatherFX.add(this.weatherParticles);
+    const rainGeometry = new THREE.BufferGeometry();
+    rainGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(200 * 6), 3));
+    this.rainStreaks = new THREE.LineSegments(rainGeometry, new THREE.LineBasicMaterial({
+      color: "#aecce0", transparent: true, opacity: 0.35, depthWrite: false
+    }));
+    this.rainStreaks.frustumCulled = false;
+    this.weatherFX.add(this.rainStreaks);
+    this.weatherGround = this.mesh(new THREE.PlaneGeometry(48, 48), new THREE.MeshStandardMaterial({
+      color: "#d9eaf4", transparent: true, opacity: 0.25, depthWrite: false, roughness: 0.22
+    }));
+    this.weatherGround.rotation.x = -Math.PI / 2;
+    this.weatherGround.position.set(0, 0.014, 7);
+    this.weatherFX.add(this.weatherGround);
+    const waves = [];
+    for (let i = 0; i < 75; i++) {
+      const x = ((i * 2.719) % 26) - 13, z = ((i * 1.618) % 23) - 4;
+      waves.push(x, 0.045, z, x + 0.18, 0.045, z + 0.025, x + 0.18, 0.045, z + 0.025, x + 0.36, 0.045, z);
+    }
+    const waveGeometry = new THREE.BufferGeometry();
+    waveGeometry.setAttribute("position", new THREE.Float32BufferAttribute(waves, 3));
+    this.waterWaves = new THREE.LineSegments(waveGeometry, new THREE.LineBasicMaterial({
+      color: "#b3e7f0", transparent: true, opacity: 0.4, depthWrite: false
+    }));
+    this.weatherFX.add(this.waterWaves);
+    const halo = this.texture((c, size) => {
+      const glow = c.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+      glow.addColorStop(0, "#fff5ba99"); glow.addColorStop(1, "#fff5ba00");
+      c.fillStyle = glow; c.fillRect(0, 0, size, size);
+    });
+    this.sunHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: halo, transparent: true, depthWrite: false, opacity: 0.65
+    }));
+    this.sunHalo.position.set(-4, 4.8, 12); this.sunHalo.scale.set(3, 3, 1);
+    this.weatherFX.add(this.sunHalo);
+    this.windFlag = new THREE.Group();
+    const pole = this.mesh(new THREE.CylinderGeometry(0.025, 0.025, 2.5, 6), this.material("#c6d4db"));
+    pole.position.y = 1.25; this.windFlag.add(pole);
+    this.flagCloth = this.mesh(new THREE.PlaneGeometry(0.8, 0.4), new THREE.MeshBasicMaterial({ color: "#ffcf5b", side: THREE.DoubleSide }));
+    this.flagCloth.position.set(0.4, 2.3, 0); this.windFlag.add(this.flagCloth);
+    this.windFlag.position.set(-4.5, 0, 11); this.weatherFX.add(this.windFlag);
+    this.footprints = new THREE.Group();
+    for (let i = 0; i < 12; i++) {
+      const print = this.mesh(new THREE.CircleGeometry(1, 10), new THREE.MeshBasicMaterial({ color: "#869fad", transparent: true, opacity: 0.3, depthWrite: false }));
+      print.rotation.x = -Math.PI / 2;
+      print.scale.set(0.07, 0.14, 1);
+      print.position.set(0.95 - i * 0.045 + (i % 2 ? 0.12 : -0.12), 0.02, -2.5 + i * 0.2);
+      this.footprints.add(print);
+    }
+    this.weatherFX.add(this.footprints);
+    this.sunglasses = new THREE.Group();
+    for (const side of [-1, 1]) this.weatherShape(this.sunglasses, [0.095, 0.065, 0.025], [side * 0.085, 0.03, 0.14], "#101a27");
+    this.weatherShape(this.sunglasses, [0.06, 0.012, 0.02], [0, 0.03, 0.14], "#e9c95a");
+    this.keeper.head.add(this.sunglasses);
+    this.binoculars = new THREE.Group();
+    for (const side of [-1, 1]) {
+      const barrel = this.mesh(new THREE.CylinderGeometry(0.06, 0.075, 0.2, 10), this.material("#303d48"));
+      barrel.rotation.x = Math.PI / 2; barrel.position.set(side * 0.07, 0.025, 0.22);
+      this.binoculars.add(barrel);
+      this.weatherShape(this.binoculars, [0.055, 0.055, 0.012], [side * 0.07, 0.025, 0.325], "#80c8d7");
+    }
+    this.keeper.head.add(this.binoculars);
+    this.cap = new THREE.Group();
+    this.weatherShape(this.cap, [0.18, 0.09, 0.16], [0, 0, 0], "#e44b3e");
+    this.weatherShape(this.cap, [0.21, 0.018, 0.19], [0, -0.045, -0.12], "#e44b3e");
+    this.weatherFX.add(this.cap);
+    for (const actor of [this.kicker, this.keeper]) {
+      actor.thunderHair = new THREE.Group();
+      for (let i = 0; i < 7; i++) {
+        const spike = this.mesh(new THREE.ConeGeometry(0.035, 0.24 + (i % 2) * 0.07, 5), this.material("#403123"));
+        spike.position.set((i - 3) * 0.032, 0.22, 0);
+        spike.rotation.z = (3 - i) * 0.17; actor.thunderHair.add(spike);
+      }
+      actor.head.add(actor.thunderHair);
+    }
+    this.tumbleweed = new THREE.Group();
+    for (let i = 0; i < 5; i++) {
+      const loop = this.mesh(new THREE.TorusGeometry(0.26, 0.012, 4, 16), this.material("#a17a43"));
+      loop.rotation.set(i * 0.7, i * 1.2, i * 0.4); this.tumbleweed.add(loop);
+    }
+    this.weatherFX.add(this.tumbleweed);
+    this.nest = new THREE.Group();
+    for (let i = 0; i < 5; i++) {
+      const ring = this.mesh(new THREE.TorusGeometry(0.14 + i * 0.012, 0.015, 4, 18), this.material(i % 2 ? "#9a713e" : "#70502b"));
+      ring.rotation.set(Math.PI / 2 + i * 0.03, 0, i);
+      ring.position.y = i * 0.018; this.nest.add(ring);
+    }
+    this.weatherFX.add(this.nest);
+    this.floatingBoot = new THREE.Group();
+    this.weatherShape(this.floatingBoot, [0.09, 0.06, 0.2], [0, 0, 0], "#c3e862");
+    this.weatherShape(this.floatingBoot, [0.095, 0.018, 0.21], [0, -0.045, 0], "#303b3c");
+    this.weatherFX.add(this.floatingBoot);
+    this.duck = new THREE.Group();
+    this.weatherShape(this.duck, [0.2, 0.12, 0.25], [0, 0.12, 0], "#ffe056");
+    this.weatherShape(this.duck, [0.105, 0.11, 0.105], [0, 0.27, -0.14], "#ffe056");
+    this.weatherShape(this.duck, [0.07, 0.025, 0.075], [0, 0.25, -0.245], "#ff943c");
+    this.duckWings = [];
+    for (const side of [-1, 1]) {
+      this.weatherShape(this.duck, [0.012, 0.014, 0.012], [side * 0.08, 0.3, -0.19], "#17252a");
+      this.duckWings.push(this.weatherShape(this.duck, [0.035, 0.065, 0.12], [side * 0.19, 0.13, 0], "#e9b62d"));
+    }
+    this.weatherFX.add(this.duck);
+    const angelMap = this.texture((c, size) => {
+      c.clearRect(0, 0, size, size); c.fillStyle = "#7491a370";
+      for (const side of [-1, 1]) {
+        c.beginPath(); c.ellipse(size * (0.5 + side * 0.17), size * 0.4, size * 0.22, size * 0.13, side * 0.45, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.ellipse(size * (0.5 + side * 0.09), size * 0.7, size * 0.12, size * 0.22, -side * 0.25, 0, Math.PI * 2); c.fill();
+      }
+      c.beginPath(); c.ellipse(size * 0.5, size * 0.32, size * 0.075, size * 0.075, 0, 0, Math.PI * 2); c.fill();
+    });
+    this.snowAngel = this.mesh(new THREE.PlaneGeometry(1.8, 2), new THREE.MeshBasicMaterial({
+      map: angelMap, transparent: true, depthWrite: false
+    }));
+    this.snowAngel.rotation.x = -Math.PI / 2; this.snowAngel.position.set(0, 0.025, 11);
+    this.weatherFX.add(this.snowAngel);
+    this.sandPile = this.mesh(new THREE.ConeGeometry(0.25, 0.12, 12), this.material("#c9a46d"));
+    this.weatherFX.add(this.sandPile);
+    const gagGeometry = new THREE.BufferGeometry();
+    gagGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(36 * 3), 3));
+    this.comedyParticles = new THREE.Points(gagGeometry, new THREE.PointsMaterial({
+      color: "#9cdafa", size: 0.045, transparent: true, opacity: 0.7, depthWrite: false
+    }));
+    this.comedyParticles.frustumCulled = false; this.weatherFX.add(this.comedyParticles);
+    this.ripples = new THREE.Group();
+    for (let i = 0; i < 3; i++) {
+      const ripple = this.mesh(new THREE.TorusGeometry(0.3, 0.009, 4, 24), new THREE.MeshBasicMaterial({
+        color: "#b7e5f4", transparent: true, opacity: 0.5, depthWrite: false
+      }));
+      ripple.rotation.x = -Math.PI / 2; this.ripples.add(ripple);
+    }
+    this.weatherFX.add(this.ripples);
+    const boltGeometry = new THREE.BufferGeometry();
+    boltGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(6 * 3), 3));
+    this.lightningBolt = new THREE.Line(boltGeometry, new THREE.LineBasicMaterial({
+      color: "#ffeab0", transparent: true, opacity: 0, depthWrite: false
+    }));
+    this.lightningBolt.frustumCulled = false;
+    this.weatherFX.add(this.lightningBolt);
+  }
+
+  activeWeatherGag(state, now) {
+    const gag = state.comedy;
+    return gag && gag.activeAt !== null && now >= gag.activeAt && now < gag.until ? gag.kind : null;
+  }
+
+  weatherActorParts(state, parts, actor, now, reducedMotion) {
+    const kind = this.activeWeatherGag(state, now);
+    if (!kind || state.phase === "charging") return parts;
+    const elapsed = (now - state.comedy.activeAt) / 1000;
+    if (actor === this.kicker && ["sweat", "snowboot", "sand"].includes(kind)) {
+      const head = parts.find(part => part.name === "head").a;
+      if (kind === "sweat") {
+        const shoulder = parts.find(part => part.name === "right-upperarm").a;
+        const elbow = { x: head.x + 0.37, y: head.y - 0.14, z: head.z };
+        const wrist = { x: head.x + 0.04, y: head.y + 0.03, z: head.z + 0.13 };
+        parts = parts.map(part => {
+          if (part.name === "right-upperarm") return { ...part, a: shoulder, b: elbow };
+          if (part.name === "right-forearm") return { ...part, a: elbow, b: wrist };
+          if (part.name === "right-hand") return { ...part, a: wrist, b: { ...wrist, x: wrist.x - 0.08 } };
+          return part;
+        });
+      } else {
+        const lift = reducedMotion ? 0.18 : 0.18 + Math.sin(elapsed * 12) * 0.04;
+        parts = parts.map(part => {
+          if (part.name === "right-boot") return { ...part, a: { ...part.a, y: part.a.y + lift }, b: { ...part.b, y: part.b.y + lift } };
+          if (part.name === "right-shin") return { ...part, a: { ...part.a, y: part.a.y + 0.08 }, b: { ...part.b, y: part.b.y + lift } };
+          if (part.name === "right-thigh") return { ...part, b: { ...part.b, y: part.b.y + 0.08 } };
+          return part;
+        });
+      }
+    }
+    if (actor === this.keeper && ["slide", "angel", "dolphin"].includes(kind) &&
+      (state.phase === "result" || state.phase === "gameOver")) {
+      parts = parts.map(part => {
+        const flatten = p => ({
+          x: state.keeper.x + (p.x - state.keeper.x) * 1.3,
+          y: 0.18 + (kind === "dolphin" && !reducedMotion ? Math.max(0, Math.sin(elapsed * 3)) * 0.55 : 0),
+          z: 11 + (p.y - 0.95) * 0.85
+        });
+        return { ...part, a: flatten(part.a), b: flatten(part.b) };
+      });
+    }
+    return parts;
+  }
+
+  renderWeather(state, now, reducedMotion, kickerParts) {
+    const id = state.weather.id, time = reducedMotion ? 0 : now / 1000;
+    const wet = ["rainy", "lightning", "flood"].includes(id), snow = id === "snowy", dust = id === "dusty";
+    const kind = this.activeWeatherGag(state, now);
+    const elapsed = kind ? Math.max(0, (now - state.comedy.activeAt) / 1000) : 0;
+    this.weatherParticles.visible = snow || dust;
+    this.rainStreaks.visible = wet;
+    this.weatherParticles.material.color.set(snow ? "#ffffff" : "#d6b481");
+    this.weatherParticles.material.size = snow ? 0.055 : 0.035;
+    this.weatherParticles.material.opacity = snow ? 0.75 : 0.3;
+    if (wet || snow || dust) {
+      const positions = this.weatherParticles.geometry.attributes.position;
+      const rain = this.rainStreaks.geometry.attributes.position;
+      for (let i = 0; i < positions.count; i++) {
+        const seed = (i * 0.6180339) % 1;
+        const x = ((seed * 24 + time * (dust ? 0.7 : 0.13)) % 24) - 12;
+        const z = ((i * 1.719) % 25) - 3;
+        const y = 10 - ((i * 0.753 + time * (snow ? 0.6 : 8)) % 10);
+        positions.setXYZ(i, x, dust ? 0.2 + y * 0.25 : y, z);
+        rain.setXYZ(i * 2, x, y, z); rain.setXYZ(i * 2 + 1, x - 0.025, y - 0.28, z);
+      }
+      positions.needsUpdate = true; rain.needsUpdate = true;
+    }
+    this.weatherGround.visible = snow || wet;
+    this.weatherGround.material.color.set(snow ? "#e3edf1" : "#407d99");
+    this.weatherGround.material.opacity = snow ? 0.64 : id === "flood" ? 0.42 : 0.09;
+    this.weatherGround.position.y = id === "flood" ? 0.035 : 0.014;
+    this.waterWaves.visible = wet;
+    this.waterWaves.material.opacity = id === "flood" ? 0.45 : 0.12;
+    this.waterWaves.position.x = reducedMotion ? 0 : Math.sin(time * 0.6) * 0.05;
+    this.footprints.visible = snow;
+    this.sunHalo.visible = id === "sunny" && state.lighting === "day";
+    this.windFlag.visible = id === "windy";
+    this.windFlag.scale.x = state.weather.windX > 0 ? -1 : 1;
+    this.flagCloth.rotation.y = reducedMotion ? 0 : Math.sin(time * 3) * 0.18;
+    this.sunglasses.visible = kind === "sunglasses";
+    this.binoculars.visible = kind === "binoculars";
+    this.cap.visible = id === "windy";
+    const capLost = state.comedy && state.comedy.kind === "cap" && state.comedy.activeAt !== null;
+    if (this.cap.visible) {
+      const t = capLost ? reducedMotion ? 1 : Math.min(1, (now - state.comedy.activeAt) / 1500) : 0;
+      this.cap.position.copy(this.keeper.head.position).add(new THREE.Vector3(0, 0.17, 0));
+      this.cap.position.lerp(new THREE.Vector3(-1.8, 0.1, 12.5), t);
+      this.cap.position.y += reducedMotion ? 0 : Math.sin(t * Math.PI) * 0.8;
+      this.cap.rotation.set(t * 2, t * 3, t * 2);
+    }
+    for (const actor of [this.kicker, this.keeper]) {
+      actor.thunderHair.visible = kind === "static";
+      actor.hair.rotation.z = kind === "hair" ? 0.65 : 0;
+      actor.hair.scale.y = kind === "hair" ? 0.23 : 0.155;
+    }
+    this.tumbleweed.visible = kind === "tumbleweed";
+    if (this.tumbleweed.visible) {
+      const t = reducedMotion ? 0.5 : Math.min(1, elapsed / 4.2);
+      this.tumbleweed.position.set(-5 + t * 10, 0.3, 8.5);
+      this.tumbleweed.rotation.z = -t * 18;
+      this.keeper.head.lookAt(this.tumbleweed.position);
+    }
+    this.nest.visible = kind === "nest";
+    if (this.nest.visible) {
+      const t = reducedMotion ? 1 : Math.min(1, elapsed / 1.8);
+      this.ball.position.set(1, this.config.ballRadius, 13 - t * 5);
+      this.nest.position.copy(this.ball.position).add(new THREE.Vector3(0, 0.08, 0));
+    }
+    this.floatingBoot.visible = kind === "boot";
+    const boot = this.kicker.pieces.get("right-boot").userData.joint;
+    boot.visible = kind !== "boot";
+    if (this.floatingBoot.visible) {
+      const t = reducedMotion ? 1 : Math.min(1, elapsed / 4);
+      this.floatingBoot.position.set(-0.4 - t * 1.4, 0.08 + (reducedMotion ? 0 : Math.sin(elapsed * 3) * 0.015), 0.2 + t * 2);
+      this.floatingBoot.rotation.set(0, t * 3, 0.12);
+    }
+    this.duck.visible = kind === "duck";
+    if (this.duck.visible) {
+      const t = reducedMotion ? 1 : Math.min(1, elapsed / 3);
+      const celebrating = state.shot.outcome.type === "miss";
+      this.duck.position.set(1.6 - t * 0.7, 0.02 + (!reducedMotion && celebrating ? Math.abs(Math.sin(elapsed * 5)) * 0.18 : 0), 10.5 + t * 0.9);
+      this.duck.rotation.y = reducedMotion ? 0 : Math.sin(elapsed) * 0.35;
+      this.duckWings.forEach((wing, i) => { wing.rotation.z = celebrating && !reducedMotion ? Math.sin(elapsed * 9) * (i ? 1 : -1) : 0; });
+    }
+    this.snowAngel.visible = kind === "angel";
+    this.snowAngel.position.x = -state.keeper.x;
+    const sliding = kind === "slide", dolphin = kind === "dolphin";
+    this.keeper.group.position.set(sliding ? (reducedMotion ? 1.3 : Math.min(1.3, elapsed * 0.5)) : 0, 0,
+      dolphin && !reducedMotion ? Math.sin(elapsed * 3) * 0.3 : 0);
+    this.sandPile.visible = kind === "sand";
+    if (this.sandPile.visible) this.sandPile.position.copy(this.worldPoint(kickerParts.find(p => p.name === "right-boot").b)).setY(0.06);
+    const particles = ["sweat", "snowboot", "sand", "splash", "slide", "dolphin"].includes(kind);
+    this.comedyParticles.visible = particles;
+    if (particles) {
+      const origin = this.worldPoint(kickerParts.find(p => p.name === (kind === "sweat" ? "head" : "right-boot")).b);
+      const nearKeeper = sliding || dolphin;
+      const positions = this.comedyParticles.geometry.attributes.position;
+      this.comedyParticles.material.color.set(kind === "sand" ? "#d9b67a" : kind === "snowboot" ? "#ffffff" : "#a1d8f2");
+      for (let i = 0; i < positions.count; i++) {
+        const t = reducedMotion ? (i % 7) / 7 : (elapsed * 0.7 + i * 0.173) % 1;
+        const angle = i * 2.399;
+        const x = nearKeeper ? -state.keeper.x + Math.cos(angle) * t * 0.8 : origin.x + Math.cos(angle) * t * 0.3;
+        const y = Math.max(0.035, (kind === "sweat" ? origin.y : 0.25) * (1 - t) + Math.sin(t * Math.PI) * 0.25);
+        const z = kind === "splash" ? origin.z + t * 10.8 : nearKeeper ? 11 + Math.sin(angle) * t : origin.z + Math.sin(angle) * t * 0.3;
+        positions.setXYZ(i, x, y, z);
+      }
+      positions.needsUpdate = true;
+    }
+    this.ripples.visible = wet;
+    this.ripples.children.forEach((ripple, i) => {
+      const t = reducedMotion ? 0.5 : (time * 0.8 + i / 3) % 1;
+      const p = i === 0 ? this.ball.position : new THREE.Vector3(-state.keeper.x + (i === 1 ? -0.3 : 0.3), 0, 11);
+      ripple.position.set(p.x, 0.025, p.z); ripple.scale.setScalar(0.6 + t * 1.8);
+      ripple.material.opacity = (1 - t) * 0.35;
+      ripple.visible = i !== 0 || this.ball.position.y < 0.3;
+    });
+    this.lightningBolt.visible = id === "lightning" && Boolean(kind) && elapsed < 0.9 && !reducedMotion;
+    if (this.lightningBolt.visible) {
+      const target = kind === "bird" ? this.worldPoint(state.bird.perch) : new THREE.Vector3(-4.8, 0.1, 11);
+      const positions = this.lightningBolt.geometry.attributes.position;
+      for (let i = 0; i < positions.count; i++) {
+        const t = i / (positions.count - 1);
+        positions.setXYZ(i, target.x + (1 - t) * 2 + (i % 2 ? 0.25 : -0.25) * (1 - t), target.y + (1 - t) * 7, target.z);
+      }
+      positions.needsUpdate = true;
+      this.lightningBolt.material.opacity = Math.sin(elapsed / 0.9 * Math.PI) * 0.65;
+    }
+  }
+
   makeEasterEgg() {
     this.bird = new THREE.Group();
     const feathers = this.material("#e3e7e4"), dark = this.material("#657b85");
+    this.birdFeathers = feathers;
+    this.birdDark = dark;
     const part = (scale, position, material) => {
       const mesh = this.mesh(this.sphere, material);
       mesh.scale.set(...scale); mesh.position.set(...position);
@@ -426,6 +758,11 @@ class FootballScene3D {
       this.birdWings.push(wing);
     }
     this.scene.add(this.bird);
+    this.birdScarf = this.mesh(new THREE.TorusGeometry(0.095, 0.024, 6, 16), this.material("#d83b44"));
+    this.birdScarf.rotation.x = Math.PI / 2; this.birdScarf.position.set(0, 0.08, -0.16);
+    this.bird.add(this.birdScarf);
+    const scarfTail = this.mesh(new THREE.BoxGeometry(0.04, 0.18, 0.025), this.material("#d83b44"));
+    scarfTail.position.set(0.075, -0.06, 0); this.birdScarf.add(scarfTail);
     this.flameTexture = this.texture((c, size) => {
       const gradient = c.createRadialGradient(size / 2, size * 0.65, 0, size / 2, size / 2, size * 0.48);
       gradient.addColorStop(0, "#ffffdfff");
@@ -479,6 +816,10 @@ class FootballScene3D {
 
   renderEasterEgg(state, now, reducedMotion, kickerParts) {
     const bird = state.bird;
+    this.birdFeathers.color.set(bird && bird.sooty ? "#6c6461" : "#e3e7e4");
+    this.birdDark.color.set(bird && bird.sooty ? "#353b40" : "#657b85");
+    this.birdScarf.visible = state.weather.id === "snowy";
+    this.bird.rotation.y = state.weather.id === "windy" ? Math.PI : 0;
     const fleeing = bird && bird.fleeAt !== null;
     this.bird.visible = Boolean(bird && (!fleeing || (!reducedMotion && now - bird.fleeAt < 1200)));
     if (bird && this.bird.visible) {
@@ -528,14 +869,21 @@ class FootballScene3D {
   }
 
   render(state, keeperParts, player, goalkeeper, now, reducedMotion) {
-    if (state.lighting !== this.lastLighting) {
+    this.keeper.group.position.set(0, 0, 0);
+    const lightingKey = `${state.lighting}:${state.weather.id}`;
+    if (lightingKey !== this.lastLighting) {
       const day = state.lighting === "day";
-      this.scene.background.set(day ? "#95bcd3" : "#13243d");
+      const weather = state.weather.id;
+      this.scene.background.set(weather === "dusty" ? day ? "#c4a277" : "#453c35" :
+        weather === "foggy" ? day ? "#acbec7" : "#576977" :
+        ["rainy", "lightning", "flood"].includes(weather) ? day ? "#728c9e" : "#192c40" : day ? "#95bcd3" : "#13243d");
       this.scene.fog.color.copy(this.scene.background);
+      this.scene.fog.near = weather === "foggy" ? 16 : weather === "dusty" ? 18 : 24;
+      this.scene.fog.far = weather === "foggy" ? 42 : weather === "dusty" ? 48 : 65;
       this.ambient.intensity = day ? 1.65 : 0.7;
       this.sun.intensity = day ? 3.2 : 0.15;
       this.floodlights.forEach(light => { light.visible = !day; });
-      this.lastLighting = state.lighting;
+      this.lastLighting = lightingKey;
     }
     if (state.stadium !== this.lastVenue) {
       this.stadiums.forEach((group, index) => { group.visible = index === state.stadium; });
@@ -543,10 +891,11 @@ class FootballScene3D {
     }
     const team = this.teams[state.turn];
     const kit = player === team.players[team.keeperIndex] ? team.keeperKit : team.kit;
-    const kickerParts = this.kickerParts(state, kit, now);
+    const kickerParts = this.weatherActorParts(state, this.kickerParts(state, kit, now), this.kicker, now, reducedMotion);
     this.poseActor(this.kicker, kickerParts, player, kit, { x: 0, z: 11 });
     const ballPosition = state.shot ? state.shot.ball.p : { x: 0, y: this.config.ballRadius, z: 0 };
-    this.poseActor(this.keeper, keeperParts, goalkeeper, this.teams[1 - state.turn].keeperKit, ballPosition);
+    const visualKeeperParts = this.weatherActorParts(state, keeperParts, this.keeper, now, reducedMotion);
+    this.poseActor(this.keeper, visualKeeperParts, goalkeeper, this.teams[1 - state.turn].keeperKit, ballPosition);
     this.ball.position.copy(this.worldPoint(ballPosition));
     const age = state.shot && state.shot.resultAt !== undefined && state.shot.outcome && state.shot.outcome.type === "goal" ? (now - state.shot.resultAt) / 1000 : Infinity;
     if (Number.isFinite(age)) {
@@ -570,6 +919,7 @@ class FootballScene3D {
     this.trail.geometry = new THREE.BufferGeometry().setFromPoints(state.shot ? state.shot.trail.map(p => this.worldPoint(p)) : []);
     this.trail.visible = Boolean(state.shot && !state.shot.outcome && state.shot.trail.length > 1);
     this.renderEasterEgg(state, now, reducedMotion, kickerParts);
+    this.renderWeather(state, now, reducedMotion, kickerParts);
     this.renderer.render(this.scene, this.camera);
   }
 }

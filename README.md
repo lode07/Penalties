@@ -122,6 +122,8 @@ For iPhone/iPad sharing, host the game folder and open its link in Safari rather
 - **Next penalty / Next team:** advance after a goal, save, or miss. After the match ends, choose **Play again**.
 - **Restart:** reset the round at any time.
 - **Game mode:** choose an AI keeper or a second player on the same device from the menu.
+- **Teams (3D only):** choose **Home team** and **Away team** in the menu: Liverpool, Real Madrid, Barcelona, Bayern Munich, PSG, Arsenal, Man UTD, Man City, Napoli, Juventus, Inter Milan or AC Milan. Selecting the opposing club swaps the teams, so the matchup always has two different clubs. Home shoots first and is Player 1 (you in versus-AI mode); away is Player 2 or the AI. Practice uses the home team's takers against the away keeper. Team names, generic kit colours, eleven-player rotation, goalkeepers, scoreboards and results follow your selections. Restart and Play again retain the chosen clubs; changing a club starts a fresh match. Stadiums still randomly alternate between the two existing venues; team selection does not add stadium models.
+- **Versus AI (3D only):** choose **1 player vs AI - club shootout** for a full match. You control the home team's shots and goalkeeper; the computer shoots and keeps goal for the away team. Select **Next** after each result; the AI starts its run-up automatically after a short preparation pause. During its run-up or flight, use the physical numpad (pitch focused) or click/tap a keeper direction. Your first move locks. The AI's aim is hidden, and shooting/spin controls cannot alter its kicks. Five kicks each, early wins, sudden death, player rotation and team fire-shot rewards use the same rules as local two-player mode.
 - **Sound:** use **Enable sound** if audio is blocked. Once active, **Sound on/off** toggles all sound effects using the button above the pitch. Touch release, clicks and keyboard input can activate audio.
 - **Lighting:** choose day or night in the menu. An Anfield- or Bernabeu-inspired venue is randomly selected when starting or restarting a match.
 - **Hide aim:** hold the right mouse button to hide the target and native cursor; release to restore them. In the original 2D game, press right before starting a left-button charge. The 3D version supports either button order.
@@ -140,7 +142,28 @@ The goalkeeper has articulated arms and legs, gloves, boots, facial details, and
 - Kicker approach, planting, leg swing and follow-through; keeper loading, distinct high/mid/low dives, jump, crouch, landing and recovery.
 - Keeper collision capsules use the same 3D joints as the renderer. Unlike the 2D version, a dive does not remain frozen at full extension: committing too early can leave the keeper landing before the ball arrives.
 - Desktop layout uses the browser height, a wide pitch and a right-hand control panel, rather than stacking all controls below a tall canvas. Resizing or switching modes updates the camera and aiming projection. Narrow screens stack the panels and scroll normally; very short windows may also require scrolling.
-- Solo practice, alternating club shootouts, sudden death, audio, live rebounds and gentle spin are retained.
+- Solo practice, local two-player and player-versus-AI club shootouts, sudden death, audio, live rebounds and gentle spin are supported.
+
+### Random weather and touchline comedy (3D only)
+
+Starting a match, Restart or Play again randomly picks one of eight equally likely forecasts. Weather stays the same through both teams' turns and sudden death. The weather strip explains the conditions; the existing day/night setting still controls the time of day. Quitting clears the attempt and any pending comedy or rewards.
+
+| Weather | New graphics and occasional comedy | Ball effects |
+|---|---|---|
+| Sunny | Clear sky, soft daytime sun glow, oversized keeper sunglasses or a forehead-wiping taker | Normal physics |
+| Windy | Direction pennant, sideways hair, a cap blown into the net and a backwards-facing bird | A steady left/right crosswind of 0.9-1.4 m/s² bends airborne shots; the HUD shows the direction and strength |
+| Rainy | Rain streaks, wet turf, ripples, a splash towards the keeper or a post-shot penguin slide | Less ground drag and more speed retained on bounces |
+| Foggy | Misty stands, keeper binoculars or a missed ball returning with a nest | Normal physics; fog is limited so the goal and ball stay readable |
+| Snowy | Snowflakes, a pale pitch, footprints, a bird scarf, snow shaken from a boot or a keeper snow angel | Softer bounces and slightly more ground drag |
+| Dusty Desert | Warm haze, drifting dust, a rolling tumbleweed watched by the keeper or a ridiculous bootful of sand | Normal physics |
+| Lightning | Rain, one gently fading bolt with quiet thunder, static hair or a sooty bird flying away unharmed | Wet-turf physics; a bird startled by a nearby bolt leaves a fire shot for the attacking team's next kick |
+| Flood | Shallow blue water, wavelets, ripples, splashes, a dolphin keeper, a floating boot or a rubber duck celebrating a miss | Softer bounces, more ground drag and slower ground rebounds |
+
+Both teams use the same weather physics, including fire shots. The AI shooter aims into the measured wind rather than ignoring it; it still has its normal shot variation and can miss. Crosswind does not push a grounded ball. Weather never changes a locked keeper choice, goal-line rules, post collisions or fire-shot save immunity.
+
+Each attempt has a 70% chance of one weather gag, selected from that forecast's set. Preparation gags start while aiming, or defer until after ball contact if charging has already begun. Other gags wait until contact or the result; slides, snow angels and dolphin poses are cosmetic **after the shot is decided**, not changes to keeper collision geometry. Gags last about four seconds and never delay Next. The cap can remain in the net until the next attempt. A nest appears only after a miss; otherwise the keeper gets binoculars. A lightning bird gag falls back to static hair if the bird has already fled or the attempt is powered, preventing duplicate or chained rewards.
+
+All effects, props and textures are generated locally, with no new downloads. **Results, rewards, weather captions and spin controls live outside the pitch**: beside it on desktop and below it on narrow screens. No instructional text or result banner covers the goal. The desktop keeper pad moves to the top of its panel during a human keeper turn; longer updates can scroll within that panel rather than cover the pitch. Reduced-motion mode keeps atmospheric particles and comedy props static, omits lightning flashes, and retains captions and weather physics. Thunder follows the existing sound toggle. These changes have browser-emulation coverage but still need physical-device graphics/performance checks.
 
 Three.js **0.158.0** is pinned locally for classic-script, `file://` compatibility. Its [MIT license](vendor/three-LICENSE.txt) and [dependency manifest](vendor/manifest.json) are included. The legacy build emits a deprecation warning, but does not fetch a CDN or require an internet connection. If WebGL cannot start or its context is lost, the page displays an explicit error and directs you to reload or use the 2D game.
 
@@ -170,9 +193,11 @@ The bird, flame texture and effects are generated locally, with no additional do
 - Both teams have independent scores, kick histories, and save totals. Misses consume a kick but do not count as a goalkeeper save. Hover over a history marker to see the taker and outcome.
 - Solo practice stays Liverpool shooting five times against Real Madrid's AI keeper; it has no alternating AI shooter or sudden death.
 
+These club assignments describe the 2D game and the 3D defaults. In 3D, the selected home and away clubs replace Liverpool and Real Madrid throughout these rules; versus-AI mode replaces Player 2 with the computer.
+
 ### Representative lineups
 
-These are static, editable game lineups, not live squads or official starting elevens.
+These are static, editable game lineups, not live squads or official starting elevens. The additional 3D clubs also have representative eleven-player lists, not live squad data. Kits are simplified club-colour designs rather than official replicas.
 
 | Kick order | Liverpool | Real Madrid |
 |---|---|---|
@@ -240,7 +265,7 @@ Verified in VS Code's integrated Chromium browser:
 - The initial 3D fork passed 106 checks for projection round trips, screen directions, finite keeper joints across all nine moves, keeper recovery, post/crossbar rebound-in and rebound-out, gradual spin, fixed-step determinism, and shootout decisions.
 - The 3D mouse controls passed both button-down orders and both button-release orders, plus release outside the pitch and cancellation on focus loss.
 - Widescreen layout checks at 1920x1080, 1366x768, 1280x720 and 1024x600 found no page overflow in either mode; the Next/Restart buttons stayed visible. Narrow layouts at 900, 640 and 360 pixels remained horizontally contained and retained accurate aiming.
-- Another 17 3D integration checks covered numpad locking, alternating takers/keepers and kits, result ownership, a full five-shot solo round, saveable Panenkas, and all venue/lighting combinations. The compact 1024x600 two-player panel also fits its entire keypad without internal scrolling.
+- Another 17 3D integration checks covered numpad locking, alternating takers/keepers and kits, result ownership, a full five-shot solo round, saveable Panenkas, and all venue/lighting combinations. The current 1024x600 layout prioritises the entire active keeper pad above the off-pitch updates.
 - A simulated WebGL context loss displayed the error notice and disabled gameplay controls; reloading restored the 3D scene.
 - The bird/fire Easter egg passed 50 deterministic checks covering spawn and proximity thresholds, swept near misses, landing timing, team ownership, goalkeeper-turn preservation, solo play, cancellation, one-shot consumption, all nine keeper moves, unchanged rebounds/misses, effect cleanup, restart/mode reset, fixed-step consistency and reduced-motion flames.
 - The earlier separate-button touch prototype passed six device-detection fixtures and 19 synthetic input checks, with pointer capture simulated for routing tests. The current pitch-hold controls were subsequently checked with native browser input as described below.
@@ -248,6 +273,8 @@ Verified in VS Code's integrated Chromium browser:
 - The menus passed 68 checks across both versions: starting with selected settings, quitting from all six gameplay phases, cancelling input, clearing scores/rewards, preventing hidden-game advancement, restoring focus/sound controls and restarting.
 - Native browser touch checks passed charge/release, cancellation, established pointer-capture loss and quitting while held in both versions. A native two-finger 3D check verified spin plus a simultaneous keeper move without stealing the spin pointer. Mouse/keyboard shooting and the supported mouse-button chords were also rechecked.
 - The compact 3D controls passed 72 layout-state checks across solo/duo and all gameplay phases at 390x844, 375x667, 320x568, 844x390, 667x375 and 768x1024. Checks included child-level clipping, the exact 64px spin graphic, stable spin position as readouts change, and the solo Next button fitting within the 375x667 viewport.
+- The weather update passed analytic drift, bounce-retention and grounded-drag checks for all eight forecasts, AI wind-compensation checks, and balanced sampling across 16,000 match forecasts. All 17 gags rendered with finite transforms and no WebGL errors in both normal and reduced-motion modes. Integration checks covered one-event timing, charge-safe deferral, per-team bird rewards, powered-shot isolation, weather retention, menu cleanup, and physical AI/human shot resolution.
+- Off-pitch update/controls rectangles were checked against the pitch at desktop, phone and short-landscape sizes, including 320px-wide portrait. Results, reward notices, comedy captions and spin controls did not intersect the pitch, and no horizontal page overflow occurred.
 
 Firefox and standalone browser verification remain pending. The narrow-layout checks do not certify mobile touch controls.
 
