@@ -12,6 +12,19 @@ Both versions open on a **game menu**. Choose the game mode and day/night lighti
 
 During play, setup controls and long instructions are hidden, leaving a compact **Quit to menu / Sound** bar above the game. **Quit to menu ends the match**, clears the score and any 3D fire-shot rewards, cancels held inputs and stops shot sounds. Starting again begins a fresh match with the selected settings; there is no Resume option. The hidden game does not advance or render while the menu is open.
 
+### Sound on iPhone and iPad (both versions)
+
+Tap **Start game** or **Enable sound** to activate sound. Touch release, clicks and keyboard input can unlock audio; a blocked attempt does not prevent a later gesture from retrying. The button shows **Enable sound** until the audio context is running, then **Sound on**. Tap **Sound on** to mute, or **Sound off** to re-enable it.
+
+If Safari is still silent:
+
+- Turn off iPhone **Silent Mode** and raise the **media volume**.
+- Check whether audio is being sent to Bluetooth headphones or another output.
+- After returning from another app or unlocking the phone, tap **Enable sound** if it appears.
+- If the game displays **Audio unavailable**, reload it and try again.
+
+The game respects device-level muting; it does not force playback over Silent Mode. Browser tests verify audio generation and gesture handling, but cannot verify a physical iPhone's speaker output.
+
 ## Host on GitHub Pages
 
 The game is a static website: no backend, package installation or build step is needed. [index.html](index.html) opens the 3D version automatically, using a relative URL that also works under a repository path such as `/Penalties/`. [.nojekyll](.nojekyll) tells Pages to serve the files without Jekyll processing.
@@ -109,7 +122,7 @@ For iPhone/iPad sharing, host the game folder and open its link in Safari rather
 - **Next penalty / Next team:** advance after a goal, save, or miss. After the match ends, choose **Play again**.
 - **Restart:** reset the round at any time.
 - **Game mode:** choose an AI keeper or a second player on the same device from the menu.
-- **Sound on/off:** toggle all sound effects using the button above the pitch. Sound starts after your first keyboard or pointer interaction.
+- **Sound:** use **Enable sound** if audio is blocked. Once active, **Sound on/off** toggles all sound effects using the button above the pitch. Touch release, clicks and keyboard input can activate audio.
 - **Lighting:** choose day or night in the menu. An Anfield- or Bernabeu-inspired venue is randomly selected when starting or restarting a match.
 - **Hide aim:** hold the right mouse button to hide the target and native cursor; release to restore them. In the original 2D game, press right before starting a left-button charge. The 3D version supports either button order.
 - **In-flight spin:** gently move the mouse left/right for curl, down for backspin, or up for topspin. Arrow keys also work. The cue-ball dot shows applied spin as it ramps up, not an instant full-strength input. Reverse movement to unwind it.
@@ -237,3 +250,5 @@ Verified in VS Code's integrated Chromium browser:
 - The compact 3D controls passed 72 layout-state checks across solo/duo and all gameplay phases at 390x844, 375x667, 320x568, 844x390, 667x375 and 768x1024. Checks included child-level clipping, the exact 64px spin graphic, stable spin position as readouts change, and the solo Next button fitting within the 375x667 viewport.
 
 Firefox and standalone browser verification remain pending. The narrow-layout checks do not certify mobile touch controls.
+
+Audio-unlock regression checks passed in both versions using native browser touch release, a deliberately pending first resume followed by a successful retry, suspended-state messaging, and mute/unmute. An analyser measured nonzero generated crowd audio and zero output after muting. These checks do not replace physical iPhone Safari testing.
